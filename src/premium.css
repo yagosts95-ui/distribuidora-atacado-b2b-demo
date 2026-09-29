@@ -461,3 +461,274 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
   .print-notes p{font-size:9px!important;margin:4px 0 0!important}
   .print-footer{display:flex!important;justify-content:space-between!important;margin-top:12px!important;padding-top:7px!important;border-top:1px solid #aaa!important;color:#666!important;font-size:7px!important}
 }
+
+
+/* === MOBILE-FIRST REWORK V3 === */
+.client-mobile-header,
+.admin-mobile-topbar,
+.admin-mobile-drawer-backdrop,
+.finance-mobile-list,
+.mobile-admin-title{display:none}
+
+/* Client: native-like mobile shell */
+@media(max-width:840px){
+  .store-shell{max-width:100%;box-shadow:none}
+  .store-shell .site-header:not(.success-header){display:none}
+  .client-mobile-header{
+    height:62px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:75;padding:0 13px;background:rgba(8,8,8,.97);
+    border-bottom:1px solid #23262a;backdrop-filter:blur(18px)
+  }
+  .client-mobile-header .brand-logo img{height:40px;max-width:190px}
+  .client-mobile-actions{display:flex;align-items:center;gap:7px}
+  .client-mobile-actions button{
+    width:39px;height:39px;border:1px solid #2b2e32;border-radius:12px;background:#121315;
+    color:#fff;display:grid;place-items:center;position:relative
+  }
+  .client-mobile-actions button b{
+    position:absolute;right:-4px;top:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;
+    display:grid;place-items:center;background:#e0222f;color:#fff;font-size:8px
+  }
+
+  .hero-carousel{
+    margin:12px 12px 16px;min-height:326px;border-radius:20px;border-color:#2a2d31;
+    box-shadow:0 18px 46px rgba(0,0,0,.34)
+  }
+  .hero-content{width:100%;min-height:326px;padding:17px;justify-content:flex-end}
+  .hero-brand{display:none}
+  .hero-copy{max-width:100%;margin:0;padding-top:72px}
+  .hero-copy h1{font-size:31px;line-height:.98;letter-spacing:-1.6px;margin:6px 0 8px;max-width:92%}
+  .hero-copy p{font-size:10px;line-height:1.42;max-width:88%;margin:0 0 12px;color:#d0d1d4}
+  .hero-kicker{font-size:8px;letter-spacing:1.35px}
+  .hero-chips{display:none}
+  .hero-cta{min-height:43px;width:auto;padding:0 14px;font-size:9px;border-radius:11px}
+  .hero-dots{bottom:9px}
+  .hero-media{background-position:66% center}
+  .hero-overlay{background:linear-gradient(0deg,rgba(3,3,3,.96) 0%,rgba(4,4,4,.78) 42%,rgba(4,4,4,.12) 82%)}
+
+  .quick-search{padding:0 12px 13px}
+  .quick-search button{height:49px;border-radius:14px;background:#111214;font-size:10px}
+  .content-section{padding:5px 12px 23px}
+  .section-heading{align-items:center;margin-bottom:11px}
+  .section-heading h2{font-size:20px;letter-spacing:-.55px;line-height:1.08;max-width:260px}
+  .section-heading .eyebrow{font-size:8px}
+  .section-heading>button{font-size:8px}
+  
+  .category-grid{
+    display:flex;overflow-x:auto;gap:9px;margin:0 -12px;padding:0 12px 5px;
+    scroll-snap-type:x proximity;scrollbar-width:none
+  }
+  .category-grid::-webkit-scrollbar{display:none}
+  .category-card{
+    flex:0 0 142px;min-height:86px;padding:11px;border-radius:15px;
+    grid-template-columns:auto 1fr;scroll-snap-align:start
+  }
+  .category-card>svg{display:none}
+  .category-icon{width:36px;height:36px;border-radius:11px}
+  .category-card b{font-size:11px}
+  .category-card small{font-size:7px}
+
+  .product-grid{display:flex;flex-direction:column;gap:9px}
+  .product-card{
+    display:grid;grid-template-columns:112px minmax(0,1fr);min-height:126px;border-radius:15px;
+    transform:none!important;box-shadow:none
+  }
+  .product-photo{height:100%;min-height:126px;background-size:360% 360%}
+  .product-card-body{padding:10px 11px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+  .product-meta{font-size:7px}
+  .product-card h3{font-size:12px;min-height:0;margin:4px 0 8px;line-height:1.14}
+  .commercial-price{padding-top:7px}
+  .commercial-price>span,.home-product-copy span{font-size:7px}
+  .commercial-price strong{font-size:17px}
+  .home-product-copy{min-height:25px;padding-top:7px}
+  .product-action{margin-top:7px;min-height:31px}
+  .product-action>button{height:32px;font-size:8px;border-radius:9px}
+  .products-section .product-card:nth-child(n+5){display:none}
+  .pricing-note{font-size:7px}
+
+  .business-benefits{
+    display:flex;overflow-x:auto;gap:9px;margin:0 0 18px;padding:0 12px 5px;background:transparent;
+    border:0;border-radius:0;scrollbar-width:none
+  }
+  .business-benefits::-webkit-scrollbar{display:none}
+  .business-benefits article{
+    flex:0 0 78%;min-height:82px;background:#111214;border:1px solid #292c30!important;
+    border-radius:14px;padding:12px
+  }
+  .business-benefits b{font-size:10px}.business-benefits span{font-size:8px}
+
+  .page-section{padding:16px 12px 82px}
+  .page-title{gap:10px;margin-bottom:15px}
+  .page-title>button{width:38px;height:38px;border-radius:11px}
+  .page-title h1{font-size:24px;letter-spacing:-.7px;margin-top:2px}
+  .page-title p{font-size:9px;line-height:1.4}
+  .catalog-toolbar{display:block}
+  .catalog-search{height:47px;border-radius:12px}
+  .filter-row{margin:0 -12px;padding:10px 12px 13px}
+  .filter-row button{padding:8px 12px;font-size:8px}
+  .catalog-count{display:none}
+
+  .cart-layout,.checkout-layout{display:block}
+  .cart-list{gap:8px}
+  .cart-item{
+    grid-template-columns:76px minmax(0,1fr);padding:7px;border-radius:13px
+  }
+  .cart-item .product-photo{height:72px;min-height:72px}
+  .cart-info h3{font-size:11px}
+  .cart-item .qty{grid-column:2;justify-self:start;margin-top:2px}
+  .order-summary{position:static;margin-top:11px;border-radius:14px}
+  .checkout-form{padding:13px;border-radius:14px}
+  .delivery-options{grid-template-columns:1fr 1fr}
+
+  .customer-orders-list{gap:10px}
+  .customer-order-card{padding:13px;border-radius:15px}
+  .customer-order-card>header{padding-bottom:10px}
+  .customer-order-card>header h2{font-size:20px}
+  .customer-order-number{display:block;color:#68cd93;font-size:8px;margin-top:4px}
+  .customer-order-meta{grid-template-columns:1fr 1fr;gap:7px;padding:10px 0}
+  .customer-order-meta>div:first-child{grid-column:1/-1}
+  .customer-order-meta>div{padding:9px}
+  .customer-timeline{display:flex;overflow-x:auto;gap:6px;padding:7px 0 4px;scrollbar-width:none}
+  .customer-timeline::-webkit-scrollbar{display:none}
+  .timeline-step{
+    flex:0 0 112px;min-height:58px;display:flex;flex-direction:column;justify-content:center;
+    text-align:center;border:1px solid #292c30;border-radius:11px;background:#121315;padding:7px
+  }
+  .timeline-step:before{display:none}
+  .timeline-step i{width:25px;height:25px}
+  .customer-order-items{display:none}
+  .customer-status-copy{font-size:9px;margin-top:9px;padding:9px 10px}
+
+  .success-header{height:62px;padding:0 13px}
+  .success-header .brand-logo img{height:42px}
+  .success-screen{min-height:calc(100vh - 62px);padding:42px 18px 85px}
+  .success-screen h1{font-size:28px}
+}
+
+/* Admin: separate mobile app with drawer + one module per screen */
+.admin-mobile-topbar{height:60px;align-items:center;justify-content:space-between;padding:0 12px;background:#090909;border-bottom:1px solid #25282c;position:sticky;top:0;z-index:90}
+.admin-mobile-topbar .brand-logo img{height:38px;max-width:180px}
+.admin-mobile-menu-button,.admin-mobile-store-button{
+  width:38px;height:38px;border:1px solid #2b2e32;border-radius:11px;background:#141619;color:#fff;display:grid;place-items:center
+}
+.admin-mobile-drawer-backdrop{position:fixed;inset:0;z-index:140;background:rgba(0,0,0,.72);backdrop-filter:blur(6px)}
+.admin-mobile-drawer{width:min(84vw,320px);height:100%;background:#0c0d0f;border-right:1px solid #2b2e32;padding:18px 14px;display:flex;flex-direction:column;box-shadow:24px 0 60px rgba(0,0,0,.5)}
+.admin-mobile-drawer>header{display:flex;align-items:center;justify-content:space-between;padding-bottom:17px;border-bottom:1px solid #24272b}
+.admin-mobile-drawer>header .brand-logo img{height:47px;max-width:220px}
+.admin-mobile-drawer>header button{width:38px;height:38px;border:1px solid #303338;border-radius:11px;background:#15171a;color:#fff;display:grid;place-items:center}
+.admin-mobile-drawer nav{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.admin-mobile-drawer nav button{
+  min-height:48px;border:0;border-radius:12px;background:transparent;color:#a1a4a9;
+  display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:9px;padding:0 12px;text-align:left;font-size:11px;font-weight:800
+}
+.admin-mobile-drawer nav button.active{background:#d9212d;color:#fff}
+.admin-mobile-drawer nav button b{min-width:21px;height:21px;border-radius:99px;background:#24272b;color:#fff;display:grid;place-items:center;font-size:8px}
+.drawer-store-link{
+  margin-top:auto;min-height:47px;border:1px solid #33373c;border-radius:12px;background:#15171a;color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;font-weight:850
+}
+.mobile-admin-title{display:none}
+.finance-mobile-list{display:none}
+
+@media(max-width:840px){
+  .admin-sidebar{display:none!important}
+  .admin-mobile-topbar{display:flex}
+  .admin-mobile-drawer-backdrop{display:block}
+  .admin-layout{display:block;min-height:100vh;background:#0b0b0c}
+  .admin-main{padding:13px 11px 28px;min-height:calc(100vh - 60px)}
+  .admin-header{margin:0 0 12px;align-items:flex-start}
+  .admin-header .eyebrow{font-size:8px}
+  .desktop-admin-title{display:none}
+  .mobile-admin-title{display:block;font-size:24px!important;letter-spacing:-.7px!important;margin:3px 0!important}
+  .admin-header p{font-size:9px}
+  .admin-user{display:none}
+
+  .admin-mobile-module{display:none!important}
+  .admin-mobile-module.mobile-active{display:block!important}
+
+  .metric-grid.mobile-active{
+    display:flex!important;overflow-x:auto;gap:8px;margin:0 -11px 14px;padding:0 11px 6px;scrollbar-width:none
+  }
+  .metric-grid.mobile-active::-webkit-scrollbar{display:none}
+  .metric-grid.mobile-active article{flex:0 0 145px;min-height:82px;padding:12px;border-radius:14px}
+  .metric-grid.mobile-active article:nth-child(5){grid-column:auto}
+  .metric-grid i{width:36px;height:36px}
+  .metric-grid b{font-size:18px}
+  .metric-grid span{font-size:8px}
+
+  .orders-panel.mobile-active{padding:12px;border-radius:14px}
+  .orders-panel-head{margin-bottom:6px}
+  .orders-panel-head h2{font-size:17px}
+  .order-filter-tabs{margin:0 -2px;padding:3px 0 10px}
+  .order-filter-tabs button{min-height:33px;font-size:7px}
+  .order-cards-grid{display:flex;flex-direction:column;gap:9px}
+  .admin-order-card{padding:12px;border-radius:14px}
+  .admin-order-card>header{padding-bottom:9px}
+  .admin-order-card h3{font-size:13px}
+  .order-card-meta{grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+  .order-card-meta>div:first-child{grid-column:1/-1}
+  .order-card-meta>div{padding:8px}
+  .generated-order{min-height:43px;padding:8px;margin-top:7px}
+  .order-card-items{display:none}
+  .admin-order-card>footer{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px;padding-top:9px}
+  .order-card-primary{grid-column:1/-1;order:-1;margin:0;min-height:42px;font-size:8px}
+  .order-card-secondary,.order-print-button{min-height:37px;font-size:7px}
+
+  .finance-module.mobile-active{padding:12px;margin-bottom:0;border-radius:14px}
+  .finance-heading{display:block;margin-bottom:10px}
+  .finance-heading h2{font-size:17px}
+  .finance-heading p{font-size:8px;line-height:1.4}
+  .finance-demo-badge{display:none}
+  .finance-metrics{
+    display:flex;overflow-x:auto;gap:7px;margin:0 -2px 11px;padding:0 2px 5px;scrollbar-width:none
+  }
+  .finance-metrics::-webkit-scrollbar{display:none}
+  .finance-metrics article{flex:0 0 145px;padding:10px}
+  .finance-metrics i{width:34px;height:34px}
+  .finance-metrics b{font-size:15px}
+  .finance-table-wrap{display:none}
+  .finance-mobile-list{display:flex;flex-direction:column;gap:8px}
+  .finance-mobile-card{
+    width:100%;border:1px solid #2b2e32;background:#15171a;color:#fff;border-radius:13px;padding:11px;text-align:left
+  }
+  .finance-mobile-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding-bottom:9px;border-bottom:1px solid #282b2f}
+  .finance-mobile-card-head>div span{display:block;color:#777b80;font-size:7px;font-weight:850;letter-spacing:.5px}
+  .finance-mobile-card-head>div b{display:block;font-size:11px;margin-top:3px}
+  .finance-mobile-card-values{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding-top:9px}
+  .finance-mobile-card-values>div{min-width:0}
+  .finance-mobile-card-values span{display:block;color:#72767b;font-size:7px;text-transform:uppercase}
+  .finance-mobile-card-values b{display:block;font-size:9px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+
+  .admin-bottom-grid.mobile-active{display:block!important}
+  .admin-bottom-grid.mobile-active .admin-panel{padding:13px;border-radius:14px}
+  .admin-bottom-grid.mobile-active .accent-panel{display:none}
+  .admin-lines div{font-size:8px}
+
+  .order-modal-backdrop{z-index:160;padding:0;align-items:flex-end}
+  .order-modal{
+    width:100%;max-height:94vh;border-radius:22px 22px 0 0;padding:15px;
+    overscroll-behavior:contain
+  }
+  .order-modal-head{position:sticky;top:-15px;z-index:3;background:#0f1012;padding:15px 0 11px}
+  .order-detail-grid{grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+  .order-detail-grid article{padding:9px}
+  .admin-order-flow{grid-template-columns:1fr;gap:5px}
+  .admin-order-flow>div{min-height:37px;display:grid;grid-template-columns:25px 1fr;text-align:left;padding:6px 8px}
+  .order-item-line{grid-template-columns:52px minmax(0,1fr) 38px;padding:7px 8px}
+  .order-item-thumb{width:52px;height:46px}
+  .finance-form-grid{grid-template-columns:1fr}
+  .order-modal-footer{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .order-modal-footer .primary{grid-column:1/-1}
+}
+
+@media(max-width:420px){
+  .hero-copy h1{font-size:29px;max-width:96%}
+  .hero-copy p{max-width:95%}
+  .category-card{flex-basis:132px}
+  .product-card{grid-template-columns:104px minmax(0,1fr)}
+  .product-photo{min-height:122px}
+  .mobile-nav{height:62px}
+  .mobile-nav button{font-size:7px}
+  .finance-mobile-card-values{grid-template-columns:1fr 1fr}
+  .finance-mobile-card-values>div:last-child{grid-column:1/-1}
+}
