@@ -33,12 +33,13 @@ type HeroSlide = {
   description: string;
   cta: string;
   category?: CategoryId;
+  image: string;
   chips: { icon: "quality" | "truck" | "support" | "grill"; label: string }[];
 };
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const ASSET_LOGO = "/assets/mh-logo.webp";
-const ASSET_B2B = "/assets/b2b-triptych.webp";
+const ASSET_LOGO = "/assets/mh-logo.svg";
+const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 
 const heroSlides: HeroSlide[] = [
   {
@@ -48,6 +49,7 @@ const heroSlides: HeroSlide[] = [
     accent: "quem vende carne.",
     description: "Um canal próprio para açougues, mercados e operações comerciais montarem pedidos com mais agilidade.",
     cta: "Ver catálogo",
+    image: "/assets/hero-distribution.svg",
     chips: [
       { icon: "quality", label: "Catálogo organizado" },
       { icon: "truck", label: "Entrega comercial" },
@@ -62,6 +64,7 @@ const heroSlides: HeroSlide[] = [
     description: "Seleção comercial apresentada para quem compra em volume, revende e precisa de previsibilidade no abastecimento.",
     cta: "Explorar Linha Grill",
     category: "grill",
+    image: "/assets/hero-grill.svg",
     chips: [
       { icon: "grill", label: "Linha Grill" },
       { icon: "quality", label: "Seleção premium" }
@@ -74,6 +77,7 @@ const heroSlides: HeroSlide[] = [
     accent: "mais eficiência.",
     description: "Pedido estruturado, comunicação clara e uma experiência pensada para o relacionamento B2B.",
     cta: "Montar pedido",
+    image: "/assets/hero-logistics.svg",
     chips: [
       { icon: "truck", label: "Operação de distribuição" },
       { icon: "support", label: "Equipe comercial" }
@@ -238,9 +242,7 @@ function HeroCarousel({ onCatalog, onCategory }: { onCatalog: () => void; onCate
       onMouseLeave={() => setPaused(false)}
       aria-label="Destaques comerciais MH"
     >
-      <div className="hero-media">
-        <img src={ASSET_B2B} alt="" aria-hidden="true" />
-      </div>
+      <div className="hero-media" style={{ backgroundImage: `url("${slide.image}")` }} aria-hidden="true" />
       <div className="hero-overlay" />
 
       <div className="hero-content">
