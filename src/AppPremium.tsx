@@ -146,7 +146,7 @@ function ProductPhoto({ product }: { product: Product }) {
   return (
     <div
       className="product-photo"
-      style={{ backgroundImage: `url("${ASSET_B2B}")`, backgroundPosition: productPosition(product) }}
+      style={{ backgroundImage: `url("${ASSET_CATALOG}")`, backgroundPosition: productPosition(product) }}
       role="img"
       aria-label={product.name}
     >
