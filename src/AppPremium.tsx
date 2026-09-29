@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowLeft, BarChart3, Beef, Box, CheckCircle2, ChevronRight, ClipboardList,
-  Flame, Home, Menu, Minus, PackageCheck, Plus, Search, Send, ShoppingCart,
-  Snowflake, Store, Truck, UserRound, X
+  ArrowLeft, ArrowRight, BarChart3, Beef, Box, CheckCircle2, ChevronRight,
+  ClipboardList, Flame, Headphones, Home, Menu, Minus, PackageCheck, Plus,
+  Search, Send, ShieldCheck, ShoppingCart, Snowflake, Store, Truck, UserRound, X
 } from "lucide-react";
 import { categories, featuredCodes, products, type CategoryId, type Product } from "./data/products";
 import "./premium.css";
@@ -23,78 +23,195 @@ type DemoOrder = {
   createdAt: string;
 };
 
-const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-
-const photoByCode: Record<string, string> = {
-  "6605": "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=900&q=82",
-  "5803": "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=900&q=82",
-  "5211": "https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=900&q=82",
-  "5305": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82",
-  "5307": "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=900&q=82",
-  "6606": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=82"
+type HeroSlide = {
+  id: string;
+  kicker: string;
+  title: string;
+  accent: string;
+  description: string;
+  cta: string;
+  image: string;
+  category?: CategoryId;
+  chips: { icon: "quality" | "truck" | "support" | "grill"; label: string }[];
 };
 
-const fallbackPhotos = Object.values(photoByCode);
+const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-function Brand({ inverse = false }: { inverse?: boolean }) {
+const heroSlides: HeroSlide[] = [
+  {
+    id: "institutional",
+    kicker: "MH DIGITAL • CANAL B2B",
+    title: "Qualidade para abastecer",
+    accent: "o seu negócio.",
+    description: "Carnes selecionadas, entrega confiável e atendimento comercial em uma experiência própria da MH.",
+    cta: "Ver catálogo",
+    image: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1800&q=88",
+    chips: [
+      { icon: "quality", label: "Qualidade garantida" },
+      { icon: "truck", label: "Entrega confiável" },
+      { icon: "support", label: "Atendimento comercial" }
+    ]
+  },
+  {
+    id: "cupim",
+    kicker: "LINHA GRILL • ATACADO",
+    title: "Cupim Grill para operações que",
+    accent: "exigem padrão.",
+    description: "Uma linha com apresentação forte e condição comercial para clientes do atacado.",
+    cta: "Explorar linha Grill",
+    image: "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=1800&q=88",
+    category: "grill",
+    chips: [
+      { icon: "grill", label: "Linha Grill" },
+      { icon: "quality", label: "Seleção premium" }
+    ]
+  },
+  {
+    id: "picanha",
+    kicker: "SELEÇÃO MH • LINHA PREMIUM",
+    title: "Picanha Grill com presença premium",
+    accent: "no seu catálogo.",
+    description: "Seleção de alto padrão para negócios que valorizam qualidade, experiência e relacionamento comercial.",
+    cta: "Ver produtos",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1800&q=88",
+    category: "grill",
+    chips: [
+      { icon: "quality", label: "Linha premium" },
+      { icon: "support", label: "Atendimento comercial" }
+    ]
+  }
+];
+
+const productImages = [
+  "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=900&q=84",
+  "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=84",
+  "https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=900&q=84",
+  "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=900&q=84",
+  "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=900&q=84"
+];
+
+function Logo({ inverse = false, compact = false }: { inverse?: boolean; compact?: boolean }) {
   return (
-    <div className={"mh-brand " + (inverse ? "mh-brand--inverse" : "")}>
-      <div className="mh-seal">
-        <div className="mh-cow"><Beef size={24} strokeWidth={1.7} /></div>
-        <b>MH</b>
+    <div className={"brand-logo " + (inverse ? "inverse " : "") + (compact ? "compact" : "")}>
+      <div className="brand-seal">
+        <Beef size={compact ? 22 : 29} strokeWidth={1.55} />
+        <span>MH</span>
       </div>
-      <div className="mh-brand-copy">
-        <strong>MH Distribuidora</strong>
-        <span>Atacado de carnes e alimentos</span>
+      <div className="brand-wordmark">
+        <div><b>MH</b><strong>Digital</strong></div>
+        <span>DISTRIBUIDORA DE ALIMENTOS</span>
       </div>
     </div>
   );
 }
 
-function ProductPhoto({ product, hero = false }: { product: Product; hero?: boolean }) {
-  const idx = Number(product.code.slice(-1)) % fallbackPhotos.length;
-  const url = photoByCode[product.code] || fallbackPhotos[idx];
+function ProductPhoto({ product }: { product: Product }) {
+  const index = Number(product.code.slice(-1)) % productImages.length;
   return (
-    <div className={"mh-product-photo " + (hero ? "mh-product-photo--hero" : "")}>
-      <img src={url} alt={product.name} loading={hero ? "eager" : "lazy"} />
-      {!hero && <span>MH</span>}
+    <div className="product-photo">
+      <img src={productImages[index]} alt={product.name} loading="lazy" />
+      <span className="photo-brand">MH</span>
     </div>
   );
 }
 
 function CategoryIcon({ id }: { id: CategoryId }) {
-  if (id === "grill") return <Flame size={20} />;
-  if (id === "congelados") return <Snowflake size={20} />;
-  if (id === "dianteiro") return <Beef size={20} />;
-  return <PackageCheck size={20} />;
+  if (id === "grill") return <Flame size={21} />;
+  if (id === "congelados") return <Snowflake size={21} />;
+  if (id === "dianteiro") return <Beef size={21} />;
+  return <PackageCheck size={21} />;
+}
+
+function ChipIcon({ kind }: { kind: HeroSlide["chips"][number]["icon"] }) {
+  if (kind === "truck") return <Truck size={21} />;
+  if (kind === "support") return <Headphones size={21} />;
+  if (kind === "grill") return <Flame size={21} />;
+  return <ShieldCheck size={21} />;
 }
 
 function Qty({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
-    <div className="mh-qty">
-      <button onClick={() => onChange(Math.max(0, value - 1))} aria-label="Diminuir"><Minus size={14}/></button>
+    <div className="qty">
+      <button type="button" onClick={() => onChange(Math.max(0, value - 1))} aria-label="Diminuir quantidade"><Minus size={14}/></button>
       <strong>{value}</strong>
-      <button onClick={() => onChange(value + 1)} aria-label="Aumentar"><Plus size={14}/></button>
+      <button type="button" onClick={() => onChange(value + 1)} aria-label="Aumentar quantidade"><Plus size={14}/></button>
     </div>
   );
 }
 
 function ProductCard({ product, quantity, onQuantity }: { product: Product; quantity: number; onQuantity: (n:number)=>void }) {
   return (
-    <article className="mh-product-card">
-      <ProductPhoto product={product} />
-      <div className="mh-product-card__body">
-        <div>
-          <h3>{product.name}</h3>
-          <span className="mh-sku">SKU {product.code}</span>
+    <article className="product-card">
+      <ProductPhoto product={product}/>
+      <div className="product-card-body">
+        <div className="product-meta">
+          <span>SKU {product.code}</span>
+          <span>Atacado</span>
         </div>
-        <div className="mh-price-line">
-          <div><strong>{money.format(product.price)}</strong><small>/ kg*</small></div>
-          {quantity > 0 ? <Qty value={quantity} onChange={onQuantity}/> :
-            <button className="mh-add" onClick={() => onQuantity(1)}><ShoppingCart size={15}/>Adicionar</button>}
+        <h3>{product.name}</h3>
+        <div className="commercial-price">
+          <span>Preço de referência</span>
+          <div><strong>{money.format(product.price)}</strong><small>valor demonstrativo</small></div>
+        </div>
+        <div className="product-action">
+          {quantity > 0 ? (
+            <>
+              <Qty value={quantity} onChange={onQuantity}/>
+              <span className="selected-label">incluído</span>
+            </>
+          ) : (
+            <button onClick={() => onQuantity(1)}><Plus size={16}/> Incluir no pedido</button>
+          )}
         </div>
       </div>
     </article>
+  );
+}
+
+function HeroCarousel({ onCatalog, onCategory }: { onCatalog: () => void; onCategory: (id: CategoryId) => void }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (paused) return;
+    timer.current = window.setInterval(() => setIndex(i => (i + 1) % heroSlides.length), 5200);
+    return () => { if (timer.current) window.clearInterval(timer.current); };
+  }, [paused]);
+
+  const go = (next: number) => setIndex((next + heroSlides.length) % heroSlides.length);
+  const slide = heroSlides[index];
+  const action = () => slide.category ? onCategory(slide.category) : onCatalog();
+
+  return (
+    <section
+      className="hero-carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      aria-label="Destaques comerciais MH"
+    >
+      <div className="hero-background" style={{ backgroundImage: `url("${slide.image}")` }} />
+      <div className="hero-overlay" />
+      <div className="hero-content">
+        <Logo inverse/>
+        <div className="hero-copy">
+          <span className="hero-kicker">{slide.kicker}</span>
+          <h1>{slide.title} <em>{slide.accent}</em></h1>
+          <p>{slide.description}</p>
+          <div className="hero-chips">
+            {slide.chips.map(chip => (
+              <div key={chip.label}><ChipIcon kind={chip.icon}/><span>{chip.label}</span></div>
+            ))}
+          </div>
+          <button className="hero-cta" onClick={action}>{slide.cta}<ArrowRight size={19}/></button>
+        </div>
+      </div>
+      <button className="hero-arrow left" onClick={() => go(index - 1)} aria-label="Banner anterior"><ArrowLeft size={19}/></button>
+      <button className="hero-arrow right" onClick={() => go(index + 1)} aria-label="Próximo banner"><ArrowRight size={19}/></button>
+      <div className="hero-dots">
+        {heroSlides.map((item, i) => <button key={item.id} className={i===index ? "active" : ""} onClick={() => go(i)} aria-label={`Ir para banner ${i+1}`}/>)}
+      </div>
+    </section>
   );
 }
 
@@ -106,9 +223,7 @@ function Storefront() {
   const [cart, setCart] = useState<Cart>(() => {
     try { return JSON.parse(localStorage.getItem("mh-demo-cart") || "{}"); } catch { return {}; }
   });
-  const [form, setForm] = useState({
-    client: "", phone: "", city: "Goiânia", delivery: "Entrega" as "Entrega" | "Retirada", note: ""
-  });
+  const [form, setForm] = useState({ client: "", phone: "", city: "Goiânia", delivery: "Entrega" as "Entrega" | "Retirada", note: "" });
 
   useEffect(() => localStorage.setItem("mh-demo-cart", JSON.stringify(cart)), [cart]);
   useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [view]);
@@ -118,151 +233,196 @@ function Storefront() {
     .map(([code,qty]) => ({ product: products.find(p=>p.code===code)!, qty }))
     .filter(x=>x.product), [cart]);
 
-  const itemCount = items.reduce((a,b)=>a+b.qty,0);
-  const total = items.reduce((a,b)=>a+(b.product.price*b.qty),0);
+  const itemCount = items.reduce((sum,item)=>sum+item.qty,0);
+  const total = items.reduce((sum,item)=>sum+(item.product.price*item.qty),0);
 
-  const filtered = products.filter(p => {
+  const filtered = products.filter(product => {
     const term = search.trim().toLowerCase();
-    return (category === "all" || p.category === category) &&
-      (!term || p.name.toLowerCase().includes(term) || p.code.includes(term));
+    return (category === "all" || product.category === category) &&
+      (!term || product.name.toLowerCase().includes(term) || product.code.includes(term));
   });
 
-  const setQty = (code:string, qty:number) => setCart(c => ({...c,[code]:qty}));
-  const openCategory = (id: CategoryId) => { setCategory(id); setView("catalog"); };
+  const setQty = (code:string, qty:number) => setCart(current => ({...current,[code]:qty}));
   const openCatalog = () => { setCategory("all"); setView("catalog"); };
+  const openCategory = (id: CategoryId) => { setCategory(id); setView("catalog"); };
 
-  const submitOrder = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitOrder = (event: React.FormEvent) => {
+    event.preventDefault();
     if (!form.client.trim() || !form.phone.trim() || !itemCount) return;
     const id = "MH-" + String(Date.now()).slice(-5);
     const order: DemoOrder = {
-      id, client: form.client.trim(), phone: form.phone.trim(), city: form.city.trim() || "Goiânia",
-      delivery: form.delivery, note: form.note.trim(), total, itemCount, status: "Novo", createdAt: new Date().toISOString()
+      id,
+      client: form.client.trim(),
+      phone: form.phone.trim(),
+      city: form.city.trim() || "Goiânia",
+      delivery: form.delivery,
+      note: form.note.trim(),
+      total,
+      itemCount,
+      status: "Novo",
+      createdAt: new Date().toISOString()
     };
     let current: DemoOrder[] = [];
     try { current = JSON.parse(localStorage.getItem("mh-demo-orders") || "[]"); } catch {}
     localStorage.setItem("mh-demo-orders", JSON.stringify([order,...current].slice(0,30)));
-    setOrderId(id); setCart({}); setView("success");
+    setOrderId(id);
+    setCart({});
+    setView("success");
   };
 
   if (view === "success") {
     return (
-      <div className="mh-app">
-        <header className="mh-topbar"><Brand/><a href="/admin" className="mh-admin-link">Painel</a></header>
-        <main className="mh-success">
-          <div className="mh-success-icon"><CheckCircle2 size={42}/></div>
-          <span className="mh-kicker">PEDIDO RECEBIDO</span>
+      <div className="store-shell">
+        <header className="site-header"><Logo/><a className="admin-link" href="/admin">Painel comercial</a></header>
+        <main className="success-screen">
+          <div className="success-icon"><CheckCircle2 size={43}/></div>
+          <span className="eyebrow">SOLICITAÇÃO REGISTRADA</span>
           <h1>{orderId}</h1>
-          <p>Seu pedido demonstrativo foi registrado e já pode ser visualizado no painel comercial da MH.</p>
-          <div className="mh-success-grid">
+          <p>O pedido demonstrativo foi registrado e já pode ser visualizado no painel comercial da MH.</p>
+          <div className="success-card">
             <div><span>Status</span><b>Novo pedido</b></div>
             <div><span>Canal</span><b>MH Digital</b></div>
           </div>
-          <button className="mh-primary" onClick={()=>setView("home")}>Voltar ao início</button>
-          <a className="mh-secondary" href="/admin">Abrir painel gestor</a>
+          <button className="primary full-limit" onClick={()=>setView("home")}>Voltar ao início</button>
+          <a className="secondary full-limit" href="/admin">Abrir painel gestor</a>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="mh-app">
-      <header className="mh-topbar">
-        <Brand/>
-        <div className="mh-top-actions">
-          <button className="mh-icon-btn" onClick={()=>setView("cart")}><ShoppingCart size={20}/>{itemCount>0 && <b>{itemCount}</b>}</button>
-        </div>
+    <div className="store-shell">
+      <div className="business-strip"><span>Canal digital B2B</span><span>•</span><span>Goiânia e região</span><span>•</span><span>Atendimento comercial MH</span></div>
+      <header className="site-header">
+        <Logo/>
+        <nav className="desktop-nav">
+          <button onClick={()=>setView("home")}>Início</button>
+          <button onClick={openCatalog}>Catálogo</button>
+          <button onClick={()=>setView("cart")}>Meu pedido {itemCount>0 && <b>{itemCount}</b>}</button>
+          <a href="/admin">Painel comercial</a>
+        </nav>
+        <button className="cart-icon" onClick={()=>setView("cart")}><ShoppingCart size={20}/>{itemCount>0&&<b>{itemCount}</b>}</button>
       </header>
 
-      <main className="mh-store">
+      <main className="store-main">
         {view === "home" && <>
-          <section className="mh-hero">
-            <div className="mh-hero__copy">
-              <span className="mh-kicker">MH DIGITAL • ATACADO</span>
-              <h1>Qualidade para abastecer <em>o seu negócio.</em></h1>
-              <p>Carnes selecionadas, entrega rápida e atendimento especializado em um canal próprio da MH.</p>
-              <button onClick={openCatalog}>Fazer pedido <ChevronRight size={18}/></button>
-            </div>
-            <div className="mh-hero__media"><ProductPhoto hero product={products.find(p=>p.code==="5803") || products[0]}/></div>
+          <HeroCarousel onCatalog={openCatalog} onCategory={openCategory}/>
+
+          <section className="quick-search">
+            <button onClick={openCatalog}><Search size={19}/><span>Buscar produtos, cortes ou SKU...</span><ChevronRight size={18}/></button>
           </section>
 
-          <button className="mh-search-cta" onClick={openCatalog}><Search size={19}/><span>Buscar produtos, cortes ou SKU...</span></button>
-
-          <section className="mh-section">
-            <div className="mh-section-head"><div><span className="mh-kicker">NAVEGUE POR</span><h2>Categorias</h2></div><button onClick={openCatalog}>Ver todos →</button></div>
-            <div className="mh-categories">
-              {categories.map(c => <button key={c.id} className={"mh-category " + (c.id==="grill"?"active":"")} onClick={()=>openCategory(c.id)}>
-                <span><CategoryIcon id={c.id}/></span><b>{c.short}</b>
-              </button>)}
+          <section className="content-section">
+            <div className="section-heading">
+              <div><span className="eyebrow">NAVEGUE POR</span><h2>Linhas comerciais</h2></div>
+              <button onClick={openCatalog}>Ver catálogo completo <ArrowRight size={15}/></button>
+            </div>
+            <div className="category-grid">
+              {categories.map(item => (
+                <button key={item.id} className={"category-card " + (item.id==="grill"?"featured":"")} onClick={()=>openCategory(item.id)}>
+                  <span className="category-icon"><CategoryIcon id={item.id}/></span>
+                  <div><b>{item.short}</b><small>{products.filter(p=>p.category===item.id).length} produtos</small></div>
+                  <ChevronRight size={17}/>
+                </button>
+              ))}
             </div>
           </section>
 
-          <section className="mh-section">
-            <div className="mh-section-head"><div><span className="mh-kicker">SELEÇÃO MH</span><h2>Produtos em destaque</h2></div><button onClick={openCatalog}>Ver todos →</button></div>
-            <div className="mh-products">
-              {products.filter(p=>featuredCodes.includes(p.code)).slice(0,6).map(p =>
-                <ProductCard key={p.code} product={p} quantity={cart[p.code]||0} onQuantity={q=>setQty(p.code,q)}/>)}
+          <section className="content-section products-section">
+            <div className="section-heading">
+              <div><span className="eyebrow">SELEÇÃO MH</span><h2>Destaques do catálogo</h2></div>
+              <button onClick={openCatalog}>Ver todos <ArrowRight size={15}/></button>
             </div>
-            <div className="mh-price-note">* Valores demonstrativos da tabela recebida; sujeitos à confirmação comercial.</div>
+            <div className="product-grid">
+              {products.filter(p=>featuredCodes.includes(p.code)).slice(0,8).map(product => (
+                <ProductCard key={product.code} product={product} quantity={cart[product.code]||0} onQuantity={qty=>setQty(product.code,qty)}/>
+              ))}
+            </div>
+            <div className="pricing-note">
+              <ShieldCheck size={16}/>
+              <span>Valores exibidos são referências demonstrativas. Condições, unidade comercial e preço final devem ser confirmados pela equipe MH.</span>
+            </div>
           </section>
 
-          <section className="mh-trust">
-            <div><Truck size={24}/><span><b>Entrega confiável</b><small>Goiânia e região</small></span></div>
-            <div><BarChart3 size={24}/><span><b>Preços competitivos</b><small>Condições no atacado</small></span></div>
-            <div><UserRound size={24}/><span><b>Parceiro do seu negócio</b><small>Atendimento humano</small></span></div>
+          <section className="business-benefits">
+            <article><Truck size={25}/><div><b>Entrega confiável</b><span>Operação voltada a Goiânia e região.</span></div></article>
+            <article><ShieldCheck size={25}/><div><b>Qualidade comercial</b><span>Catálogo organizado para compras no atacado.</span></div></article>
+            <article><Headphones size={25}/><div><b>Atendimento humano</b><span>O digital organiza o pedido; a equipe mantém o relacionamento.</span></div></article>
           </section>
         </>}
 
-        {view === "catalog" && <section className="mh-page">
-          <div className="mh-page-title"><button onClick={()=>setView("home")}><ArrowLeft size={20}/></button><div><span className="mh-kicker">CATÁLOGO COMPLETO</span><h1>Escolha seus produtos</h1></div></div>
-          <label className="mh-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produto ou SKU"/>{search && <button onClick={()=>setSearch("")}><X size={16}/></button>}</label>
-          <div className="mh-filters">
-            <button className={category==="all"?"active":""} onClick={()=>setCategory("all")}>Todos</button>
-            {categories.map(c=><button key={c.id} className={category===c.id?"active":""} onClick={()=>setCategory(c.id)}>{c.short}</button>)}
+        {view === "catalog" && <section className="page-section">
+          <div className="page-title">
+            <button onClick={()=>setView("home")}><ArrowLeft size={20}/></button>
+            <div><span className="eyebrow">CATÁLOGO B2B</span><h1>Selecione os produtos</h1><p>Monte uma solicitação comercial de forma rápida e organizada.</p></div>
           </div>
-          <div className="mh-count"><b>{filtered.length}</b> produtos encontrados</div>
-          <div className="mh-products">{filtered.map(p=><ProductCard key={p.code} product={p} quantity={cart[p.code]||0} onQuantity={q=>setQty(p.code,q)}/>)}</div>
-          <div className="mh-price-note">* Valores demonstrativos da tabela recebida; sujeitos à confirmação comercial.</div>
+          <div className="catalog-toolbar">
+            <label className="catalog-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produto ou SKU"/>{search&&<button onClick={()=>setSearch("")}><X size={16}/></button>}</label>
+            <div className="catalog-count"><b>{filtered.length}</b><span>produtos</span></div>
+          </div>
+          <div className="filter-row">
+            <button className={category==="all"?"active":""} onClick={()=>setCategory("all")}>Todos</button>
+            {categories.map(item=><button key={item.id} className={category===item.id?"active":""} onClick={()=>setCategory(item.id)}>{item.short}</button>)}
+          </div>
+          <div className="product-grid catalog-grid">
+            {filtered.map(product=><ProductCard key={product.code} product={product} quantity={cart[product.code]||0} onQuantity={qty=>setQty(product.code,qty)}/>)}
+          </div>
+          <div className="pricing-note"><ShieldCheck size={16}/><span>Preço de referência demonstrativo. Unidade e condição comercial devem ser confirmadas no fechamento.</span></div>
         </section>}
 
-        {view === "cart" && <section className="mh-page">
-          <div className="mh-page-title"><button onClick={()=>setView("home")}><ArrowLeft size={20}/></button><div><span className="mh-kicker">{itemCount} ITENS</span><h1>Meu Pedido</h1></div></div>
-          {!items.length ? <div className="mh-empty"><ShoppingCart size={42}/><h2>Seu pedido está vazio</h2><p>Adicione cortes do catálogo para começar.</p><button className="mh-primary" onClick={openCatalog}>Explorar catálogo</button></div> :
-          <>
-            <div className="mh-cart-list">{items.map(({product,qty})=><article className="mh-cart-item" key={product.code}>
-              <ProductPhoto product={product}/>
-              <div className="mh-cart-info"><h3>{product.name}</h3><span>SKU {product.code}</span><b>{money.format(product.price)} / kg*</b></div>
-              <Qty value={qty} onChange={q=>setQty(product.code,q)}/>
-            </article>)}</div>
-            <div className="mh-summary">
-              <div><span>Subtotal ({itemCount} itens)</span><b>{money.format(total)}</b></div>
-              <div><span>Entrega</span><b>A combinar</b></div>
-              <div className="total"><span>Total estimado</span><b>{money.format(total)}</b></div>
-              <small>* Valor demonstrativo sujeito à confirmação da equipe comercial.</small>
+        {view === "cart" && <section className="page-section cart-page">
+          <div className="page-title"><button onClick={()=>setView("home")}><ArrowLeft size={20}/></button><div><span className="eyebrow">{itemCount} ITENS SELECIONADOS</span><h1>Meu Pedido</h1><p>Revise os itens antes de enviar sua solicitação comercial.</p></div></div>
+          {!items.length ? (
+            <div className="empty-state"><ShoppingCart size={43}/><h2>Seu pedido está vazio</h2><p>Escolha produtos do catálogo para montar sua solicitação.</p><button className="primary" onClick={openCatalog}>Explorar catálogo</button></div>
+          ) : (
+            <div className="cart-layout">
+              <div className="cart-list">
+                {items.map(({product,qty})=><article className="cart-item" key={product.code}>
+                  <ProductPhoto product={product}/>
+                  <div className="cart-info"><span>SKU {product.code}</span><h3>{product.name}</h3><small>Preço de referência</small><b>{money.format(product.price)}</b></div>
+                  <Qty value={qty} onChange={value=>setQty(product.code,value)}/>
+                </article>)}
+              </div>
+              <aside className="order-summary">
+                <span className="eyebrow">RESUMO COMERCIAL</span>
+                <div><span>Itens selecionados</span><b>{itemCount}</b></div>
+                <div><span>Entrega</span><b>A combinar</b></div>
+                <div className="summary-total"><span>Estimativa de referência</span><b>{money.format(total)}</b></div>
+                <p>Valor demonstrativo. Preço final, peso/unidade, disponibilidade e condição comercial serão confirmados pela MH.</p>
+                <button className="primary full" onClick={()=>setView("checkout")}>Continuar <ChevronRight size={18}/></button>
+              </aside>
             </div>
-            <button className="mh-primary full" onClick={()=>setView("checkout")}>Continuar pedido <ChevronRight size={18}/></button>
-          </>}
+          )}
         </section>}
 
-        {view === "checkout" && <section className="mh-page mh-checkout">
-          <div className="mh-page-title"><button onClick={()=>setView("cart")}><ArrowLeft size={20}/></button><div><span className="mh-kicker">FINALIZAÇÃO</span><h1>Enviar pedido</h1></div></div>
-          <form onSubmit={submitOrder}>
-            <label>Empresa / Nome<input required value={form.client} onChange={e=>setForm({...form,client:e.target.value})} placeholder="Ex.: Mercado Central"/></label>
-            <label>WhatsApp<input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="(62) 99999-9999"/></label>
-            <label>Cidade<input value={form.city} onChange={e=>setForm({...form,city:e.target.value})}/></label>
-            <fieldset><legend>Recebimento</legend><div className="mh-delivery">
-              {(["Entrega","Retirada"] as const).map(opt=><button type="button" key={opt} className={form.delivery===opt?"active":""} onClick={()=>setForm({...form,delivery:opt})}>{opt==="Entrega"?<Truck size={19}/>:<Store size={19}/>}<span>{opt}</span>{form.delivery===opt&&<CheckCircle2 size={17}/>}</button>)}
-            </div></fieldset>
-            <label>Observações <small>(opcional)</small><textarea value={form.note} onChange={e=>setForm({...form,note:e.target.value})} placeholder="Preferência de entrega, horário, observações..."/></label>
-            <div className="mh-summary compact"><div><span>{itemCount} itens</span><b>{money.format(total)}</b></div><small>* Valor demonstrativo.</small></div>
-            <button className="mh-primary full" type="submit"><Send size={18}/>Enviar pedido</button>
-          </form>
+        {view === "checkout" && <section className="page-section checkout-page">
+          <div className="page-title"><button onClick={()=>setView("cart")}><ArrowLeft size={20}/></button><div><span className="eyebrow">SOLICITAÇÃO COMERCIAL</span><h1>Enviar pedido</h1><p>Informe seus dados para a equipe MH receber a solicitação organizada.</p></div></div>
+          <div className="checkout-layout">
+            <form className="checkout-form" onSubmit={submitOrder}>
+              <label>Empresa / Nome<input required value={form.client} onChange={e=>setForm({...form,client:e.target.value})} placeholder="Ex.: Mercado Central"/></label>
+              <div className="form-grid">
+                <label>WhatsApp<input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="(62) 99999-9999"/></label>
+                <label>Cidade<input value={form.city} onChange={e=>setForm({...form,city:e.target.value})}/></label>
+              </div>
+              <fieldset><legend>Recebimento</legend><div className="delivery-options">
+                {(["Entrega","Retirada"] as const).map(option=><button type="button" key={option} className={form.delivery===option?"active":""} onClick={()=>setForm({...form,delivery:option})}>{option==="Entrega"?<Truck size={20}/>:<Store size={20}/>}<span>{option}</span>{form.delivery===option&&<CheckCircle2 size={18}/>}</button>)}
+              </div></fieldset>
+              <label>Observações <small>(opcional)</small><textarea value={form.note} onChange={e=>setForm({...form,note:e.target.value})} placeholder="Horário, referência, condição desejada ou observações..."/></label>
+              <button className="primary full" type="submit"><Send size={18}/>Enviar solicitação</button>
+            </form>
+            <aside className="order-summary checkout-summary">
+              <span className="eyebrow">SEU PEDIDO</span>
+              <div><span>Itens selecionados</span><b>{itemCount}</b></div>
+              <div className="summary-total"><span>Estimativa de referência</span><b>{money.format(total)}</b></div>
+              <p>O envio não representa faturamento. A equipe MH confirma disponibilidade, unidade, preço e condição comercial.</p>
+            </aside>
+          </div>
         </section>}
       </main>
 
-      <nav className="mh-bottom">
+      <nav className="mobile-nav">
         <button className={view==="home"?"active":""} onClick={()=>setView("home")}><Home size={19}/><span>Início</span></button>
-        <button className={view==="catalog"?"active":""} onClick={openCatalog}><Menu size={19}/><span>Categorias</span></button>
+        <button className={view==="catalog"?"active":""} onClick={openCatalog}><Menu size={19}/><span>Catálogo</span></button>
         <button className={view==="cart"||view==="checkout"?"active":""} onClick={()=>setView("cart")}><ShoppingCart size={19}/><span>Meu Pedido</span>{itemCount>0&&<b>{itemCount}</b>}</button>
         <a href="/admin"><ClipboardList size={19}/><span>Pedidos</span></a>
       </nav>
@@ -280,7 +440,7 @@ const baseOrders = [
 
 function Badge({ status }: { status: Status }) {
   const cls = status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-");
-  return <span className={"mh-badge "+cls}>{status}</span>;
+  return <span className={"status-badge "+cls}>{status}</span>;
 }
 
 function Admin() {
@@ -288,9 +448,9 @@ function Admin() {
   useEffect(()=>{ try{ setOrders(JSON.parse(localStorage.getItem("mh-demo-orders")||"[]")); }catch{} },[]);
   const rows = [...orders,...baseOrders];
   return (
-    <div className="mh-admin">
-      <aside className="mh-side">
-        <Brand inverse/>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <Logo inverse/>
         <nav>
           <a className="active" href="/admin"><BarChart3 size={18}/>Visão Geral</a>
           <a href="#pedidos"><ClipboardList size={18}/>Pedidos</a>
@@ -298,31 +458,36 @@ function Admin() {
           <a href="#produtos"><Box size={18}/>Produtos</a>
           <a href="/"><Store size={18}/>Abrir catálogo</a>
         </nav>
-        <div className="mh-side-foot"><span>DEMONSTRAÇÃO</span><b>MH Digital</b></div>
+        <div className="admin-sidebar-foot"><span>DEMONSTRAÇÃO PREMIUM</span><b>MH Digital • B2B</b></div>
       </aside>
-      <main className="mh-admin-main">
-        <header className="mh-admin-head">
-          <div><h1>Painel Comercial</h1><p>Acompanhe seus pedidos e o desempenho das vendas em tempo real.</p></div>
-          <div className="mh-user"><span>JS</span><div><b>João Silva</b><small>Comercial</small></div></div>
+      <main className="admin-main">
+        <header className="admin-header">
+          <div><span className="eyebrow">MH DISTRIBUIDORA</span><h1>Painel Comercial</h1><p>Acompanhe pedidos e a operação do canal digital.</p></div>
+          <div className="admin-user"><span>JS</span><div><b>João Silva</b><small>Comercial</small></div></div>
         </header>
 
-        <section className="mh-metrics">
+        <section className="metric-grid">
           <article><i className="red"><ShoppingCart size={22}/></i><div><b>{28+orders.length}</b><span>Novos pedidos</span></div></article>
           <article><i className="yellow"><Box size={22}/></i><div><b>17</b><span>Em separação</span></div></article>
           <article><i className="blue"><Truck size={22}/></i><div><b>12</b><span>Saiu para entrega</span></div></article>
           <article><i className="green"><CheckCircle2 size={22}/></i><div><b>156</b><span>Concluídos</span></div></article>
         </section>
 
-        <section className="mh-panel" id="pedidos">
-          <div className="mh-panel-head"><div><h2>Últimos pedidos</h2><span>Operação comercial demonstrativa</span></div><button>Ver todos →</button></div>
-          <div className="mh-table-wrap"><table><thead><tr><th># Pedido</th><th>Cliente</th><th>Cidade</th><th>Valor</th><th>Itens</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody>{rows.map(o=><tr key={o.id}><td><b>#{o.id.replace("MH-","")}</b></td><td>{o.client}</td><td>{o.city}</td><td>{money.format(o.total)}</td><td>{o.itemCount}</td><td><Badge status={o.status}/></td><td><button className="mh-dots">•••</button></td></tr>)}</tbody>
+        <section className="admin-panel" id="pedidos">
+          <div className="admin-panel-head"><div><h2>Últimos pedidos</h2><span>Solicitações recebidas pelo canal MH Digital</span></div><button>Ver todos <ArrowRight size={14}/></button></div>
+          <div className="admin-table-wrap"><table><thead><tr><th># Pedido</th><th>Cliente</th><th>Cidade</th><th>Referência</th><th>Itens</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody>{rows.map(order=><tr key={order.id}><td><b>#{order.id.replace("MH-","")}</b></td><td>{order.client}</td><td>{order.city}</td><td>{money.format(order.total)}</td><td>{order.itemCount}</td><td><Badge status={order.status}/></td><td><button className="dots">•••</button></td></tr>)}</tbody>
           </table></div>
         </section>
 
-        <section className="mh-admin-grid">
-          <article className="mh-panel" id="produtos"><span className="mh-kicker">CATÁLOGO</span><h2>42 SKUs carregados</h2><p>Produtos organizados nas linhas Grill, Dianteiro, Traseiro e Congelados.</p><div className="mh-lines">{categories.map(c=><div key={c.id}><span>{c.label}</span><b>{products.filter(p=>p.category===c.id).length} SKUs</b></div>)}</div></article>
-          <article className="mh-panel dark" id="clientes"><span className="mh-kicker">CANAL PRÓPRIO</span><h2>Do Instagram ao pedido estruturado.</h2><p>A experiência organiza catálogo, quantidade, cliente e entrega antes do contato comercial.</p><a href="/">Abrir experiência do cliente <ChevronRight size={17}/></a></article>
+        <section className="admin-bottom-grid">
+          <article className="admin-panel" id="produtos">
+            <span className="eyebrow">CATÁLOGO</span><h2>42 SKUs demonstrativos</h2><p>Linhas comerciais organizadas para uma experiência B2B rápida e clara.</p>
+            <div className="admin-lines">{categories.map(item=><div key={item.id}><span>{item.label}</span><b>{products.filter(p=>p.category===item.id).length} SKUs</b></div>)}</div>
+          </article>
+          <article className="admin-panel dark" id="clientes">
+            <span className="eyebrow">CANAL PRÓPRIO</span><h2>Instagram gera interesse. MH Digital organiza o pedido.</h2><p>O WhatsApp continua como relacionamento comercial, enquanto catálogo e solicitação ganham estrutura própria.</p><a href="/">Abrir experiência do cliente <ChevronRight size={17}/></a>
+          </article>
         </section>
       </main>
     </div>
