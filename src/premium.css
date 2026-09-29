@@ -29,11 +29,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 
 /* HERO */
 .hero-carousel{margin:22px 34px 28px;min-height:500px;border-radius:26px;overflow:hidden;position:relative;background:#090909;box-shadow:var(--shadow);border:1px solid #232528}
-.hero-media{position:absolute;inset:0;overflow:hidden;background:#080808}
-.hero-media img{position:absolute;left:0;top:0;width:100%;height:300%;object-fit:cover;object-position:center;transition:transform .6s ease}
-.hero-carousel.slide-0 .hero-media img{transform:translateY(0)}
-.hero-carousel.slide-1 .hero-media img{transform:translateY(-33.333%)}
-.hero-carousel.slide-2 .hero-media img{transform:translateY(-66.666%)}
+.hero-media{position:absolute;inset:0;overflow:hidden;background:#080808 center/cover no-repeat;transition:filter .35s ease,transform 5s ease;transform:scale(1.01)}
+.hero-carousel:hover .hero-media{transform:scale(1.035);filter:saturate(1.08) contrast(1.04)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,2,2,.97) 0%,rgba(4,4,4,.93) 37%,rgba(4,4,4,.52) 64%,rgba(4,4,4,.12) 100%)}
 .hero-overlay:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 16% 100%,rgba(224,34,47,.22),transparent 33%),linear-gradient(160deg,transparent 69%,rgba(224,34,47,.15) 69.3%,transparent 70%)}
 .hero-content{position:relative;z-index:3;min-height:500px;width:min(760px,62%);padding:30px 44px 34px;display:flex;flex-direction:column;justify-content:space-between}
