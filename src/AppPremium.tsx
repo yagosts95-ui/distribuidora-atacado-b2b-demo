@@ -905,6 +905,19 @@ function Admin({ onStore }: { onStore: () => void }) {
 
   const filteredOrders = orderFilter === "Todos" ? orders : orders.filter(order => order.status === orderFilter);
 
+  const recentOrders = [...orders]
+    .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0,4);
+
+  const activeFlow = [
+    { label:"Recebidos", value:orders.length, icon:<ClipboardList size={18}/> },
+    { label:"Aceitos", value:counts.aceitos + counts.separacao + counts.entrega + counts.concluidos, icon:<CheckCircle2 size={18}/> },
+    { label:"Separação", value:counts.separacao, icon:<Box size={18}/> },
+    { label:"Entrega", value:counts.entrega, icon:<Truck size={18}/> }
+  ];
+
+  const attentionCount = counts.aguardando + finance.undefinedCount;
+
   const printOrder = (order: DemoOrder) => {
     if (!order.orderNumber) return;
     setSelectedOrder(order);
@@ -979,6 +992,78 @@ function Admin({ onStore }: { onStore: () => void }) {
           <article><i className="yellow"><Box size={22}/></i><div><b>{counts.separacao}</b><span>Em separação</span></div></article>
           <article><i className="blue"><Truck size={22}/></i><div><b>{counts.entrega}</b><span>Em entrega</span></div></article>
           <article><i className="green"><CheckCircle2 size={22}/></i><div><b>{counts.concluidos}</b><span>Concluídos</span></div></article>
+        </section>
+
+        <section className={"admin-overview-dashboard admin-mobile-module " + (adminSection==="overview" ? "mobile-active" : "")}>
+          <article className={"attention-card " + (attentionCount === 0 ? "all-good" : "")}>
+            <div className="overview-card-head">
+              <div>
+                <span className="eyebrow">{attentionCount === 0 ? "OPERAÇÃO EM DIA" : "PRECISA DA SUA ATENÇÃO"}</span>
+                <h2>{attentionCount === 0 ? "Nenhuma pendência imediata" : "Há ações esperando você"}</h2>
+              </div>
+              <span className="attention-number">{attentionCount}</span>
+            </div>
+
+            <div className="attention-items">
+              <button type="button" onClick={()=>{setOrderFilter("Aguardando aceite");openAdminSection("orders");}}>
+                <span><ShoppingCart size={16}/><b>{counts.aguardando}</b> pedido{counts.aguardando===1 ? "" : "s"} aguardando aceite</span>
+                <ChevronRight size={16}/>
+              </button>
+              <button type="button" onClick={()=>openAdminSection("finance")}>
+                <span><DollarSign size={16}/><b>{finance.undefinedCount}</b> pedido{finance.undefinedCount===1 ? "" : "s"} sem valor definido</span>
+                <ChevronRight size={16}/>
+              </button>
+            </div>
+          </article>
+
+          <article className="flow-card">
+            <div className="overview-card-head">
+              <div><span className="eyebrow">FLUXO ATUAL</span><h2>Ritmo da operação</h2></div>
+              <button type="button" onClick={()=>openAdminSection("orders")}>Ver pedidos <ArrowRight size={14}/></button>
+            </div>
+            <div className="operation-flow">
+              {activeFlow.map((item,index)=>(
+                <React.Fragment key={item.label}>
+                  <div className="operation-step">
+                    <i>{item.icon}</i>
+                    <b>{item.value}</b>
+                    <span>{item.label}</span>
+                  </div>
+                  {index < activeFlow.length-1 && <ChevronRight className="operation-arrow" size={16}/>}
+                </React.Fragment>
+              ))}
+            </div>
+          </article>
+
+          <article className="overview-finance-card">
+            <div className="overview-card-head">
+              <div><span className="eyebrow">RESUMO FINANCEIRO</span><h2>Posição da operação</h2></div>
+              <button type="button" onClick={()=>openAdminSection("finance")}>Abrir financeiro <ArrowRight size={14}/></button>
+            </div>
+            <div className="overview-finance-values">
+              <div><span>Confirmado</span><b>{money.format(finance.confirmed)}</b></div>
+              <div><span>Recebido</span><b>{money.format(finance.received)}</b></div>
+              <div><span>A receber</span><b>{money.format(finance.receivable)}</b></div>
+            </div>
+          </article>
+
+          <article className="activity-card">
+            <div className="overview-card-head">
+              <div><span className="eyebrow">ATIVIDADE RECENTE</span><h2>Últimos movimentos</h2></div>
+            </div>
+            <div className="activity-list">
+              {recentOrders.map(order=>(
+                <button type="button" key={"activity-"+order.id} onClick={()=>setSelectedOrder(order)}>
+                  <i className={"activity-dot "+order.status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-")}></i>
+                  <div>
+                    <b>Pedido #{order.id.replace("MH-","")} • {order.client}</b>
+                    <span>{order.orderNumber ? `Ordem ${order.orderNumber} • ` : ""}{order.status}</span>
+                  </div>
+                  <ChevronRight size={15}/>
+                </button>
+              ))}
+            </div>
+          </article>
         </section>
 
         <section className={"finance-module admin-mobile-module " + (adminSection==="finance" ? "mobile-active" : "")} id="financeiro">
