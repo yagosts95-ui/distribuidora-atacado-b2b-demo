@@ -153,8 +153,18 @@ function createOrderNumber(order: DemoOrder) {
   return `OP-${date}-${order.id.replace(/\D/g,"").slice(-5).padStart(5,"0")}`;
 }
 
-const ASSET_LOGO = "/assets/mh-logo.svg";
+const ASSET_LOGO = "/assets/mh-logo-premium.png";
 const ASSET_CATALOG = "/assets/b2b-catalog.svg";
+const ASSET_CATALOG_HEADER = "/assets/catalog-header-mh.png";
+
+const PREMIUM_CARD_ASSETS: Record<string,string> = {
+  "6605": "/assets/cards/sku-1001-cupim-grill.png",
+  "5305": "/assets/cards/sku-1002-contra-file-grill.png",
+  "5803": "/assets/cards/sku-1003-picanha-grill.png",
+  "5211": "/assets/cards/sku-1004-file-mignon-sem-cordao.png",
+  "5517": "/assets/cards/sku-1005-alcatra-coracao-grill.png",
+  "6606": "/assets/cards/sku-1006-costela-desossada.png"
+};
 
 const heroSlides: HeroSlide[] = [
   {
@@ -164,7 +174,7 @@ const heroSlides: HeroSlide[] = [
     accent: "quem vende carne.",
     description: "Açougues, mercados e revendedores encontram os produtos e montam seus pedidos com mais agilidade.",
     cta: "Ver catálogo",
-    image: "/assets/hero-distribution.svg",
+    image: "/assets/banner-abastecimento.png",
     chips: [
       { icon: "quality", label: "Catálogo organizado" },
       { icon: "truck", label: "Entrega comercial" },
@@ -179,7 +189,7 @@ const heroSlides: HeroSlide[] = [
     description: "Uma seleção pensada para quem precisa manter qualidade e regularidade no abastecimento.",
     cta: "Explorar Linha Grill",
     category: "grill",
-    image: "/assets/hero-grill.svg",
+    image: "/assets/banner-linha-grill.png",
     chips: [
       { icon: "grill", label: "Linha Grill" },
       { icon: "quality", label: "Seleção premium" }
@@ -192,7 +202,7 @@ const heroSlides: HeroSlide[] = [
     accent: "mais eficiência.",
     description: "Pedido organizado, comunicação clara e uma experiência simples para acompanhar cada etapa.",
     cta: "Montar pedido",
-    image: "/assets/hero-logistics.svg",
+    image: "/assets/banner-estoque-negocio.png",
     chips: [
       { icon: "truck", label: "Operação de distribuição" },
       { icon: "support", label: "Equipe comercial" }
@@ -258,6 +268,16 @@ function productPosition(product: Product) {
 }
 
 function ProductPhoto({ product }: { product: Product }) {
+  const premiumAsset = PREMIUM_CARD_ASSETS[product.code];
+
+  if (premiumAsset) {
+    return (
+      <div className="product-photo product-photo-premium" role="img" aria-label={product.name}>
+        <img src={premiumAsset} alt={product.name} loading="lazy" />
+      </div>
+    );
+  }
+
   return (
     <div
       className="product-photo"
@@ -585,11 +605,15 @@ function Storefront() {
           </section>
         </>}
 
-        {view === "catalog" && <section className="page-section">
+        {view === "catalog" && <section className="page-section catalog-page">
           <div className="page-title">
             <button type="button" onClick={()=>setView("home")}><ArrowLeft size={20}/></button>
             <div><span className="eyebrow">CATÁLOGO MH</span><h1>Selecione os produtos</h1><p>Os preços abaixo são referências da tabela recebida e não representam condição comercial final.</p></div>
           </div>
+
+          <button type="button" className="catalog-premium-banner" onClick={()=>setCategory("grill")} aria-label="Explorar seleção comercial MH">
+            <img src={ASSET_CATALOG_HEADER} alt="Catálogo MH — seleção comercial" />
+          </button>
 
           <div className="catalog-toolbar">
             <label className="catalog-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produto ou SKU"/>{search&&<button type="button" onClick={()=>setSearch("")}><X size={16}/></button>}</label>
