@@ -58,6 +58,74 @@ function nextStatusLabel(status: Status) {
   return "Pedido concluído";
 }
 
+function normalizeStatus(value: unknown): Status {
+  if (value === "Aguardando aceite") return "Aguardando aceite";
+  if (value === "Pedido aceito") return "Pedido aceito";
+  if (value === "Em separação") return "Em separação";
+  if (value === "Saiu para entrega") return "Saiu para entrega";
+  if (value === "Concluído") return "Concluído";
+
+  // Compatibilidade com pedidos gravados por versões anteriores da demo.
+  if (value === "Novo") return "Aguardando aceite";
+  if (value === "Aceito") return "Pedido aceito";
+  if (value === "Separando") return "Em separação";
+  if (value === "Em entrega") return "Saiu para entrega";
+  if (value === "Concluido") return "Concluído";
+
+  return "Aguardando aceite";
+}
+
+function normalizeOrder(raw: unknown): DemoOrder | null {
+  if (!raw || typeof raw !== "object") return null;
+  const value = raw as Partial<DemoOrder> & Record<string, unknown>;
+  if (typeof value.id !== "string" || !value.id.trim()) return null;
+
+  const rawItems = Array.isArray(value.items) ? value.items : [];
+  const items = rawItems
+    .filter(item => item && typeof item === "object")
+    .map(item => {
+      const entry = item as Record<string, unknown>;
+      return {
+        code: String(entry.code ?? "SEM-SKU"),
+        name: String(entry.name ?? "Item do pedido"),
+        qty: Math.max(1, Number(entry.qty) || 1)
+      };
+    });
+
+  const computedCount = items.reduce((sum, item) => sum + item.qty, 0);
+
+  return {
+    id: value.id,
+    client: typeof value.client === "string" && value.client.trim() ? value.client : "Cliente MH",
+    phone: typeof value.phone === "string" ? value.phone : "",
+    city: typeof value.city === "string" && value.city.trim() ? value.city : "Goiânia",
+    delivery: value.delivery === "Retirada" ? "Retirada" : "Entrega",
+    note: typeof value.note === "string" ? value.note : "",
+    itemCount: Math.max(1, Number(value.itemCount) || computedCount || 1),
+    status: normalizeStatus(value.status),
+    createdAt: typeof value.createdAt === "string" && value.createdAt ? value.createdAt : new Date().toISOString(),
+    items
+  };
+}
+
+function loadSavedOrders(): DemoOrder[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("mh-demo-orders") || "[]");
+    if (!Array.isArray(parsed)) return [];
+    const normalized = parsed.map(normalizeOrder).filter((order): order is DemoOrder => Boolean(order));
+    localStorage.setItem("mh-demo-orders", JSON.stringify(normalized));
+    return normalized;
+  } catch {
+    return [];
+  }
+}
+
+function saveSavedOrders(orders: DemoOrder[]) {
+  const normalized = orders.map(normalizeOrder).filter((order): order is DemoOrder => Boolean(order)).slice(0,30);
+  localStorage.setItem("mh-demo-orders", JSON.stringify(normalized));
+  window.dispatchEvent(new CustomEvent("mh-orders-updated"));
+}
+
 const ASSET_LOGO = "/assets/mh-logo.svg";
 const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 
@@ -301,24 +369,21 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
     try { return JSON.parse(localStorage.getItem("mh-demo-cart") || "{}"); } catch { return {}; }
   });
   const [form, setForm] = useState({ client: "", phone: "", city: "Goiânia", delivery: "Entrega" as "Entrega" | "Retirada", note: "" });
-  const [customerOrders, setCustomerOrders] = useState<DemoOrder[]>(() => {
-    try { return JSON.parse(localStorage.getItem("mh-demo-orders") || "[]"); } catch { return []; }
-  });
+  const [customerOrders, setCustomerOrders] = useState<DemoOrder[]>(() => loadSavedOrders());
 
   useEffect(() => {
     localStorage.setItem("mh-demo-cart", JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    const syncOrders = () => {
-      try { setCustomerOrders(JSON.parse(localStorage.getItem("mh-demo-orders") || "[]")); }
-      catch { setCustomerOrders([]); }
-    };
+    const syncOrders = () => setCustomerOrders(loadSavedOrders());
     window.addEventListener("storage", syncOrders);
     window.addEventListener("focus", syncOrders);
+    window.addEventListener("mh-orders-updated", syncOrders);
     return () => {
       window.removeEventListener("storage", syncOrders);
       window.removeEventListener("focus", syncOrders);
+      window.removeEventListener("mh-orders-updated", syncOrders);
     };
   }, []);
 
@@ -378,10 +443,9 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
       items: items.map(({product, qty}) => ({ code: product.code, name: product.name, qty }))
     };
 
-    let current: DemoOrder[] = [];
-    try { current = JSON.parse(localStorage.getItem("mh-demo-orders") || "[]"); } catch {}
+    const current = loadSavedOrders();
     const nextOrders = [order,...current].slice(0,30);
-    localStorage.setItem("mh-demo-orders", JSON.stringify(nextOrders));
+    saveSavedOrders(nextOrders);
     setCustomerOrders(nextOrders);
 
     setOrderId(id);
@@ -634,10 +698,10 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
                     </div>
 
                     <div className="customer-order-items">
-                      {order.items.slice(0,4).map(item => (
+                      {(order.items || []).slice(0,4).map(item => (
                         <span key={item.code}><b>{item.qty}×</b> {item.name}</span>
                       ))}
-                      {order.items.length > 4 && <span>+ {order.items.length - 4} itens</span>}
+                      {(order.items || []).length > 4 && <span>+ {(order.items || []).length - 4} itens</span>}
                     </div>
 
                     <p className="customer-status-copy">
@@ -731,20 +795,16 @@ function Admin({ onStore }: { onStore: () => void }) {
   const [selectedOrder,setSelectedOrder] = useState<DemoOrder | null>(null);
 
   useEffect(()=>{
-    try {
-      const saved: DemoOrder[] = JSON.parse(localStorage.getItem("mh-demo-orders")||"[]");
-      const savedIds = new Set(saved.map(order => order.id));
-      setOrders([...saved, ...baseOrders.filter(order => !savedIds.has(order.id))]);
-    } catch {
-      setOrders(baseOrders);
-    }
+    const saved = loadSavedOrders();
+    const savedIds = new Set(saved.map(order => order.id));
+    setOrders([...saved, ...baseOrders.filter(order => !savedIds.has(order.id))]);
   },[]);
 
   const updateStatus = (id: string, status: Status) => {
     setOrders(current => {
       const next = current.map(order => order.id === id ? { ...order, status } : order);
       const baseIds = new Set(baseOrders.map(order => order.id));
-      localStorage.setItem("mh-demo-orders", JSON.stringify(next.filter(order => !baseIds.has(order.id)).slice(0,30)));
+      saveSavedOrders(next.filter(order => !baseIds.has(order.id)));
       return next;
     });
     setSelectedOrder(current => current?.id === id ? { ...current, status } : current);
