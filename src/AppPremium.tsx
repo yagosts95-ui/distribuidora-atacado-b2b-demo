@@ -2,8 +2,8 @@ import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BarChart3, Beef, Box, CheckCircle2, ChevronRight,
   ClipboardList, CreditCard, DollarSign, Flame, Headphones, Home, Menu, Minus,
-  PackageCheck, Plus, Receipt, Search, Send, ShieldCheck, ShoppingCart, Snowflake,
-  Store, Truck, UserRound, Wallet, X
+  FileText, PackageCheck, Plus, Printer, Receipt, Search, Send, ShieldCheck,
+  ShoppingCart, Snowflake, Store, Truck, UserRound, Wallet, X
 } from "lucide-react";
 import { categories, featuredCodes, products, type CategoryId, type Product } from "./data/products";
 import "./premium.css";
@@ -29,6 +29,8 @@ type DemoOrder = {
   paidAmount: number;
   paymentMethod: PaymentMethod;
   dueDate: string;
+  orderNumber: string;
+  acceptedAt: string;
 };
 
 type HeroSlide = {
@@ -114,7 +116,9 @@ function normalizeOrder(raw: unknown): DemoOrder | null {
     commercialValue: Math.max(0, Number(value.commercialValue) || 0),
     paidAmount: Math.max(0, Number(value.paidAmount) || 0),
     paymentMethod: value.paymentMethod === "PIX" || value.paymentMethod === "Boleto" || value.paymentMethod === "Prazo" ? value.paymentMethod : "A definir",
-    dueDate: typeof value.dueDate === "string" ? value.dueDate : ""
+    dueDate: typeof value.dueDate === "string" ? value.dueDate : "",
+    orderNumber: typeof value.orderNumber === "string" ? value.orderNumber : "",
+    acceptedAt: typeof value.acceptedAt === "string" ? value.acceptedAt : ""
   };
 }
 
@@ -141,6 +145,12 @@ function financeStatus(order: DemoOrder) {
   if (order.paidAmount >= order.commercialValue) return "Pago";
   if (order.paidAmount > 0) return "Parcial";
   return "A receber";
+}
+
+function createOrderNumber(order: DemoOrder) {
+  if (order.orderNumber) return order.orderNumber;
+  const date = new Date().toISOString().slice(0,10).replace(/-/g,"");
+  return `OP-${date}-${order.id.replace(/\D/g,"").slice(-5).padStart(5,"0")}`;
 }
 
 const ASSET_LOGO = "/assets/mh-logo.svg";
@@ -461,7 +471,9 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
       commercialValue: 0,
       paidAmount: 0,
       paymentMethod: "A definir",
-      dueDate: ""
+      dueDate: "",
+      orderNumber: "",
+      acceptedAt: ""
     };
 
     const current = loadSavedOrders();
@@ -696,7 +708,11 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
                 return (
                   <article className="customer-order-card" key={order.id}>
                     <header>
-                      <div><span className="eyebrow">PEDIDO</span><h2>#{order.id.replace("MH-","")}</h2></div>
+                      <div>
+                        <span className="eyebrow">PEDIDO</span>
+                        <h2>#{order.id.replace("MH-","")}</h2>
+                        {order.orderNumber && <small className="customer-order-number">Ordem {order.orderNumber}</small>}
+                      </div>
                       <Badge status={order.status}/>
                     </header>
 
@@ -755,7 +771,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1028", client:"Açougue Central", phone:"(62) 99911-2233", city:"Goiânia",
     delivery:"Entrega", note:"Receber até 16h.", itemCount:12, status:"Aguardando aceite",
     createdAt:"2026-09-29T13:42:00-03:00",
-    commercialValue:0, paidAmount:0, paymentMethod:"A definir", dueDate:"",
+    commercialValue:0, paidAmount:0, paymentMethod:"A definir", dueDate:"", orderNumber:"", acceptedAt:"",
     items:[
       {code:"6605",name:"Cupim Grill",qty:4},
       {code:"5305",name:"Contra Filé Grill",qty:5},
@@ -766,7 +782,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1027", client:"Supermercado Goiás", phone:"(62) 99821-7744", city:"Aparecida de Goiânia",
     delivery:"Entrega", note:"Separar por linha.", itemCount:8, status:"Pedido aceito",
     createdAt:"2026-09-29T12:18:00-03:00",
-    commercialValue:4890, paidAmount:0, paymentMethod:"Prazo", dueDate:"2026-10-06",
+    commercialValue:4890, paidAmount:0, paymentMethod:"Prazo", dueDate:"2026-10-06", orderNumber:"OP-20260929-01027", acceptedAt:"2026-09-29T12:22:00-03:00",
     items:[
       {code:"5211",name:"Filé Mignon sem Cordão",qty:3},
       {code:"5701",name:"Coxão Mole",qty:3},
@@ -777,7 +793,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1026", client:"Casa de Carnes do Povo", phone:"(62) 99644-3801", city:"Goiânia",
     delivery:"Entrega", note:"Cliente recorrente.", itemCount:5, status:"Saiu para entrega",
     createdAt:"2026-09-29T10:05:00-03:00",
-    commercialValue:2710, paidAmount:1000, paymentMethod:"PIX", dueDate:"2026-09-30",
+    commercialValue:2710, paidAmount:1000, paymentMethod:"PIX", dueDate:"2026-09-30", orderNumber:"OP-20260929-01026", acceptedAt:"2026-09-29T10:10:00-03:00",
     items:[
       {code:"5801",name:"Picanha (A)",qty:2},
       {code:"6101",name:"Fralda",qty:3}
@@ -787,7 +803,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1025", client:"Rede Econômica", phone:"(62) 99325-1490", city:"Trindade",
     delivery:"Retirada", note:"Retirada pelo comprador.", itemCount:21, status:"Concluído",
     createdAt:"2026-09-28T16:40:00-03:00",
-    commercialValue:7850, paidAmount:7850, paymentMethod:"Boleto", dueDate:"2026-09-28",
+    commercialValue:7850, paidAmount:7850, paymentMethod:"Boleto", dueDate:"2026-09-28", orderNumber:"OP-20260928-01025", acceptedAt:"2026-09-28T16:45:00-03:00",
     items:[
       {code:"6301",name:"Acém com Pescoço",qty:8},
       {code:"6201",name:"Peito",qty:6},
@@ -798,7 +814,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1024", client:"Mercado Alves", phone:"(62) 99510-4200", city:"Goiânia",
     delivery:"Entrega", note:"Conferir disponibilidade antes do faturamento.", itemCount:9, status:"Concluído",
     createdAt:"2026-09-28T14:15:00-03:00",
-    commercialValue:3420, paidAmount:3420, paymentMethod:"PIX", dueDate:"2026-09-28",
+    commercialValue:3420, paidAmount:3420, paymentMethod:"PIX", dueDate:"2026-09-28", orderNumber:"OP-20260928-01024", acceptedAt:"2026-09-28T14:20:00-03:00",
     items:[
       {code:"6606",name:"Costela Desossada",qty:4},
       {code:"6502",name:"Costela em Tiras",qty:5}
@@ -819,6 +835,7 @@ function Badge({ status }: { status: Status }) {
 function Admin({ onStore }: { onStore: () => void }) {
   const [orders,setOrders] = useState<DemoOrder[]>(baseOrders);
   const [selectedOrder,setSelectedOrder] = useState<DemoOrder | null>(null);
+  const [orderFilter,setOrderFilter] = useState<"Todos" | Status>("Todos");
 
   useEffect(()=>{
     const saved = loadSavedOrders();
@@ -827,13 +844,26 @@ function Admin({ onStore }: { onStore: () => void }) {
   },[]);
 
   const updateStatus = (id: string, status: Status) => {
+    const transition = (order: DemoOrder): DemoOrder => {
+      if (order.id !== id) return order;
+      if (status === "Pedido aceito" && order.status === "Aguardando aceite") {
+        return {
+          ...order,
+          status,
+          orderNumber: createOrderNumber(order),
+          acceptedAt: new Date().toISOString()
+        };
+      }
+      return { ...order, status };
+    };
+
     setOrders(current => {
-      const next = current.map(order => order.id === id ? { ...order, status } : order);
+      const next = current.map(transition);
       const baseIds = new Set(baseOrders.map(order => order.id));
       saveSavedOrders(next.filter(order => !baseIds.has(order.id)));
       return next;
     });
-    setSelectedOrder(current => current?.id === id ? { ...current, status } : current);
+    setSelectedOrder(current => current ? transition(current) : current);
   };
 
   const counts = {
@@ -859,6 +889,14 @@ function Admin({ onStore }: { onStore: () => void }) {
       return next;
     });
     setSelectedOrder(current => current?.id === id ? { ...current, ...patch } : current);
+  };
+
+  const filteredOrders = orderFilter === "Todos" ? orders : orders.filter(order => order.status === orderFilter);
+
+  const printOrder = (order: DemoOrder) => {
+    if (!order.orderNumber) return;
+    setSelectedOrder(order);
+    window.setTimeout(() => window.print(), 80);
   };
 
   return (
@@ -922,36 +960,92 @@ function Admin({ onStore }: { onStore: () => void }) {
           </div>
         </section>
 
-        <section className="admin-panel" id="pedidos">
-          <div className="admin-panel-head">
-            <div><h2>Últimos pedidos</h2><span>Clique em qualquer pedido para abrir os detalhes completos.</span></div>
-            <button type="button" onClick={()=>document.getElementById("pedidos")?.scrollIntoView({behavior:"smooth"})}>Ver todos <ArrowRight size={14}/></button>
+        <section className="admin-panel orders-panel" id="pedidos">
+          <div className="admin-panel-head orders-panel-head">
+            <div>
+              <span className="eyebrow">OPERAÇÃO</span>
+              <h2>Pedidos</h2>
+              <span>Visualização em cards para triagem, aceite e andamento da operação.</span>
+            </div>
+            <button type="button" onClick={()=>setOrderFilter("Todos")}>Todos os pedidos <ArrowRight size={14}/></button>
           </div>
 
-          <div className="admin-table-wrap">
-            <table>
-              <thead><tr><th># Pedido</th><th>Cliente</th><th>Cidade</th><th>Itens</th><th>Status</th><th>Ações</th></tr></thead>
-              <tbody>
-                {orders.map(order=>(
-                  <tr key={order.id} className="order-row" onClick={()=>setSelectedOrder(order)}>
-                    <td><b>#{order.id.replace("MH-","")}</b></td>
-                    <td>{order.client}</td>
-                    <td>{order.city}</td>
-                    <td>{order.itemCount}</td>
-                    <td><Badge status={order.status}/></td>
-                    <td>
+          <div className="order-filter-tabs">
+            {(["Todos",...statusFlow] as Array<"Todos" | Status>).map(filter => (
+              <button
+                type="button"
+                key={filter}
+                className={orderFilter===filter ? "active" : ""}
+                onClick={()=>setOrderFilter(filter)}
+              >
+                {filter}
+                <b>{filter==="Todos" ? orders.length : orders.filter(order=>order.status===filter).length}</b>
+              </button>
+            ))}
+          </div>
+
+          <div className="order-cards-grid">
+            {filteredOrders.map(order => {
+              const next = nextStatus(order.status);
+              return (
+                <article className="admin-order-card" key={order.id}>
+                  <header>
+                    <div>
+                      <span className="order-card-label">PEDIDO #{order.id.replace("MH-","")}</span>
+                      <h3>{order.client}</h3>
+                    </div>
+                    <Badge status={order.status}/>
+                  </header>
+
+                  <div className="order-card-meta">
+                    <div><span>Cidade</span><b>{order.city}</b></div>
+                    <div><span>Itens</span><b>{order.itemCount}</b></div>
+                    <div><span>Recebimento</span><b>{order.delivery}</b></div>
+                  </div>
+
+                  {order.orderNumber ? (
+                    <div className="generated-order">
+                      <FileText size={16}/>
+                      <div><span>Ordem gerada</span><b>{order.orderNumber}</b></div>
+                    </div>
+                  ) : (
+                    <div className="generated-order pending">
+                      <ClipboardList size={16}/>
+                      <div><span>Ordem de pedido</span><b>Gerada após aceite</b></div>
+                    </div>
+                  )}
+
+                  <div className="order-card-items">
+                    {order.items.slice(0,3).map(item => (
+                      <span key={item.code}><b>{item.qty}×</b> {item.name}</span>
+                    ))}
+                    {order.items.length > 3 && <span>+ {order.items.length - 3} itens</span>}
+                  </div>
+
+                  <footer>
+                    <button type="button" className="order-card-secondary" onClick={()=>setSelectedOrder(order)}>
+                      Visualizar
+                    </button>
+
+                    {order.orderNumber && (
+                      <button type="button" className="order-print-button" onClick={()=>printOrder(order)}>
+                        <Printer size={15}/> Imprimir ordem
+                      </button>
+                    )}
+
+                    {next && (
                       <button
                         type="button"
-                        className="view-order"
-                        onClick={(event)=>{ event.stopPropagation(); setSelectedOrder(order); }}
+                        className={"order-card-primary " + (order.status==="Aguardando aceite" ? "accept" : "")}
+                        onClick={()=>updateStatus(order.id,next)}
                       >
-                        Visualizar <ChevronRight size={14}/>
+                        {nextStatusLabel(order.status)} <ChevronRight size={15}/>
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    )}
+                  </footer>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -988,6 +1082,7 @@ function Admin({ onStore }: { onStore: () => void }) {
                 <span className="eyebrow">DETALHES DO PEDIDO</span>
                 <h2>#{selectedOrder.id.replace("MH-","")}</h2>
                 <p>{dateTime.format(new Date(selectedOrder.createdAt))}</p>
+                {selectedOrder.orderNumber && <span className="modal-order-number">Ordem {selectedOrder.orderNumber}</span>}
               </div>
               <button type="button" className="modal-close" onClick={()=>setSelectedOrder(null)} aria-label="Fechar detalhes"><X size={19}/></button>
             </header>
@@ -1123,8 +1218,65 @@ function Admin({ onStore }: { onStore: () => void }) {
 
             <footer className="order-modal-footer">
               <button type="button" className="secondary modal-secondary" onClick={()=>setSelectedOrder(null)}>Fechar</button>
+              {selectedOrder.orderNumber && (
+                <button type="button" className="secondary modal-secondary print-action" onClick={()=>printOrder(selectedOrder)}>
+                  <Printer size={16}/> Imprimir ordem
+                </button>
+              )}
               <button type="button" className="primary" onClick={onStore}>Abrir catálogo do cliente</button>
             </footer>
+
+            {selectedOrder.orderNumber && (
+              <section className="print-order-sheet" aria-hidden="true">
+                <header className="print-order-header">
+                  <div className="print-brand">
+                    <img src={ASSET_LOGO} alt="MH Digital"/>
+                    <div><strong>ORDEM DO PEDIDO</strong><span>Documento operacional - MH Distribuidora</span></div>
+                  </div>
+                  <div className="print-order-number"><span>ORDEM</span><b>{selectedOrder.orderNumber}</b></div>
+                </header>
+
+                <div className="print-order-info">
+                  <div><span>Pedido de origem</span><b>#{selectedOrder.id.replace("MH-","")}</b></div>
+                  <div><span>Data do aceite</span><b>{selectedOrder.acceptedAt ? dateTime.format(new Date(selectedOrder.acceptedAt)) : "—"}</b></div>
+                  <div><span>Status</span><b>{selectedOrder.status}</b></div>
+                  <div><span>Recebimento</span><b>{selectedOrder.delivery}</b></div>
+                </div>
+
+                <div className="print-customer">
+                  <div><span>Cliente / empresa</span><b>{selectedOrder.client}</b></div>
+                  <div><span>WhatsApp</span><b>{selectedOrder.phone || "Não informado"}</b></div>
+                  <div><span>Cidade</span><b>{selectedOrder.city}</b></div>
+                </div>
+
+                <table className="print-items-table">
+                  <thead><tr><th>Item</th><th>SKU</th><th>Produto</th><th>Qtd.</th></tr></thead>
+                  <tbody>
+                    {selectedOrder.items.map((item,index)=>(
+                      <tr key={item.code+"-"+index}>
+                        <td>{index+1}</td>
+                        <td>{item.code}</td>
+                        <td>{item.name}</td>
+                        <td>{item.qty}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="print-summary">
+                  <div><span>Total de unidades selecionadas</span><b>{selectedOrder.itemCount}</b></div>
+                  <div><span>Condição financeira</span><b>{selectedOrder.commercialValue > 0 ? money.format(selectedOrder.commercialValue) : "A confirmar"}</b></div>
+                  <div><span>Forma de pagamento</span><b>{selectedOrder.paymentMethod}</b></div>
+                </div>
+
+                <div className="print-notes"><span>Observações</span><p>{selectedOrder.note || "Sem observações."}</p></div>
+
+                <footer className="print-footer">
+                  <span>Documento gerado automaticamente após o aceite comercial.</span>
+                  <span>MH Digital</span>
+                </footer>
+              </section>
+            )}
           </section>
         </div>
       )}
