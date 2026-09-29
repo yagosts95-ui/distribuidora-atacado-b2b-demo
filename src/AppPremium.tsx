@@ -2,8 +2,8 @@ import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BarChart3, Beef, Box, CheckCircle2, ChevronRight,
   ClipboardList, CreditCard, DollarSign, Flame, Headphones, Home, Menu, Minus,
-  FileText, PackageCheck, Plus, Printer, Receipt, Search, Send, ShieldCheck,
-  ShoppingCart, Snowflake, Store, Truck, UserRound, Wallet, X
+  FileText, LayoutDashboard, PackageCheck, Plus, Printer, Receipt, Search, Send,
+  ShieldCheck, ShoppingCart, Snowflake, Store, Truck, UserRound, Wallet, X
 } from "lucide-react";
 import { categories, featuredCodes, products, type CategoryId, type Product } from "./data/products";
 import "./premium.css";
@@ -159,10 +159,10 @@ const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 const heroSlides: HeroSlide[] = [
   {
     id: "operacao",
-    kicker: "MH DIGITAL • CANAL B2B",
+    kicker: "MH DIGITAL • PEDIDOS",
     title: "Abastecimento organizado para",
     accent: "quem vende carne.",
-    description: "Um canal próprio para açougues, mercados e operações comerciais montarem pedidos com mais agilidade.",
+    description: "Açougues, mercados e revendedores encontram os produtos e montam seus pedidos com mais agilidade.",
     cta: "Ver catálogo",
     image: "/assets/hero-distribution.svg",
     chips: [
@@ -173,10 +173,10 @@ const heroSlides: HeroSlide[] = [
   },
   {
     id: "linha-grill",
-    kicker: "LINHA GRILL • ATACADO",
+    kicker: "LINHA GRILL • DESTAQUES",
     title: "Cortes para operações que",
     accent: "exigem padrão.",
-    description: "Seleção comercial apresentada para quem compra em volume, revende e precisa de previsibilidade no abastecimento.",
+    description: "Uma seleção pensada para quem precisa manter qualidade e regularidade no abastecimento.",
     cta: "Explorar Linha Grill",
     category: "grill",
     image: "/assets/hero-grill.svg",
@@ -190,7 +190,7 @@ const heroSlides: HeroSlide[] = [
     kicker: "DISTRIBUIÇÃO • GOIÂNIA E REGIÃO",
     title: "Do estoque ao seu negócio com",
     accent: "mais eficiência.",
-    description: "Pedido estruturado, comunicação clara e uma experiência pensada para o relacionamento B2B.",
+    description: "Pedido organizado, comunicação clara e uma experiência simples para acompanhar cada etapa.",
     cta: "Montar pedido",
     image: "/assets/hero-logistics.svg",
     chips: [
@@ -299,7 +299,7 @@ function ProductCard({
       <div className="product-card-body">
         <div className="product-meta">
           <span>SKU {product.code}</span>
-          <span>Atacado</span>
+          <span>Catálogo MH</span>
         </div>
         <h3>{product.name}</h3>
 
@@ -387,7 +387,7 @@ function HeroCarousel({ onCatalog, onCategory }: { onCatalog: () => void; onCate
   );
 }
 
-function Storefront({ onAdmin }: { onAdmin: () => void }) {
+function Storefront() {
   const [view, setView] = useState<StoreView>("home");
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [search, setSearch] = useState("");
@@ -489,9 +489,8 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
   if (view === "success") {
     return (
       <div className="store-shell dark-theme">
-        <header className="site-header">
+        <header className="site-header success-header">
           <Logo/>
-          <button type="button" className="admin-link" onClick={onAdmin}>Painel comercial</button>
         </header>
         <main className="success-screen">
           <div className="success-icon"><CheckCircle2 size={43}/></div>
@@ -511,7 +510,18 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
 
   return (
     <div className="store-shell dark-theme">
-      <div className="business-strip"><span>Canal digital B2B</span><span>•</span><span>Açougues, mercados e revendedores</span><span>•</span><span>Goiânia e região</span></div>
+      <div className="business-strip"><span>MH Distribuidora</span><span>•</span><span>Pedidos para açougues, mercados e revendedores</span><span>•</span><span>Goiânia e região</span></div>
+
+      <header className="client-mobile-header">
+        <Logo compact/>
+        <div className="client-mobile-actions">
+          <button type="button" aria-label="Buscar produtos" onClick={openCatalog}><Search size={19}/></button>
+          <button type="button" aria-label="Abrir pedido" onClick={()=>setView("cart")}>
+            <ShoppingCart size={19}/>
+            {itemCount>0&&<b>{itemCount}</b>}
+          </button>
+        </div>
+      </header>
 
       <header className="site-header">
         <Logo/>
@@ -578,7 +588,7 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
         {view === "catalog" && <section className="page-section">
           <div className="page-title">
             <button type="button" onClick={()=>setView("home")}><ArrowLeft size={20}/></button>
-            <div><span className="eyebrow">CATÁLOGO B2B</span><h1>Selecione os produtos</h1><p>Os preços abaixo são referências da tabela recebida e não representam condição comercial final.</p></div>
+            <div><span className="eyebrow">CATÁLOGO MH</span><h1>Selecione os produtos</h1><p>Os preços abaixo são referências da tabela recebida e não representam condição comercial final.</p></div>
           </div>
 
           <div className="catalog-toolbar">
@@ -836,6 +846,8 @@ function Admin({ onStore }: { onStore: () => void }) {
   const [orders,setOrders] = useState<DemoOrder[]>(baseOrders);
   const [selectedOrder,setSelectedOrder] = useState<DemoOrder | null>(null);
   const [orderFilter,setOrderFilter] = useState<"Todos" | Status>("Todos");
+  const [adminSection,setAdminSection] = useState<"overview" | "orders" | "finance" | "catalog">("overview");
+  const [adminMenuOpen,setAdminMenuOpen] = useState(false);
 
   useEffect(()=>{
     const saved = loadSavedOrders();
@@ -899,27 +911,69 @@ function Admin({ onStore }: { onStore: () => void }) {
     window.setTimeout(() => window.print(), 80);
   };
 
+  const openAdminSection = (section: "overview" | "orders" | "finance" | "catalog") => {
+    setAdminSection(section);
+    setAdminMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="admin-layout dark-admin">
       <aside className="admin-sidebar">
         <Logo/>
         <nav>
-          <button type="button" className="active"><BarChart3 size={18}/>Visão Geral</button>
-          <button type="button" onClick={()=>document.getElementById("pedidos")?.scrollIntoView({behavior:"smooth"})}><ClipboardList size={18}/>Pedidos</button>
-          <button type="button" onClick={()=>document.getElementById("produtos")?.scrollIntoView({behavior:"smooth"})}><Box size={18}/>Produtos</button>
-          <button type="button" onClick={()=>document.getElementById("financeiro")?.scrollIntoView({behavior:"smooth"})}><DollarSign size={18}/>Financeiro</button>
+          <button type="button" className={adminSection==="overview" ? "active" : ""} onClick={()=>openAdminSection("overview")}><LayoutDashboard size={18}/>Visão Geral</button>
+          <button type="button" className={adminSection==="orders" ? "active" : ""} onClick={()=>openAdminSection("orders")}><ClipboardList size={18}/>Pedidos</button>
+          <button type="button" className={adminSection==="finance" ? "active" : ""} onClick={()=>openAdminSection("finance")}><DollarSign size={18}/>Financeiro</button>
+          <button type="button" className={adminSection==="catalog" ? "active" : ""} onClick={()=>openAdminSection("catalog")}><Box size={18}/>Produtos</button>
           <button type="button" onClick={onStore}><Store size={18}/>Abrir catálogo</button>
         </nav>
-        <div className="admin-sidebar-foot"><span>DEMONSTRAÇÃO PREMIUM</span><b>MH Digital • B2B</b></div>
+        <div className="admin-sidebar-foot"><span>DEMONSTRAÇÃO PREMIUM</span><b>MH Digital</b></div>
       </aside>
+
+      <header className="admin-mobile-topbar">
+        <button type="button" className="admin-mobile-menu-button" onClick={()=>setAdminMenuOpen(true)} aria-label="Abrir menu"><Menu size={21}/></button>
+        <Logo compact/>
+        <button type="button" className="admin-mobile-store-button" onClick={onStore} aria-label="Abrir catálogo"><Store size={19}/></button>
+      </header>
+
+      {adminMenuOpen && (
+        <div className="admin-mobile-drawer-backdrop" onClick={()=>setAdminMenuOpen(false)}>
+          <aside className="admin-mobile-drawer" onClick={event=>event.stopPropagation()}>
+            <header><Logo/><button type="button" onClick={()=>setAdminMenuOpen(false)} aria-label="Fechar menu"><X size={20}/></button></header>
+            <nav>
+              <button type="button" className={adminSection==="overview" ? "active" : ""} onClick={()=>openAdminSection("overview")}><LayoutDashboard size={19}/><span>Visão geral</span></button>
+              <button type="button" className={adminSection==="orders" ? "active" : ""} onClick={()=>openAdminSection("orders")}><ClipboardList size={19}/><span>Pedidos</span><b>{orders.length}</b></button>
+              <button type="button" className={adminSection==="finance" ? "active" : ""} onClick={()=>openAdminSection("finance")}><DollarSign size={19}/><span>Financeiro</span></button>
+              <button type="button" className={adminSection==="catalog" ? "active" : ""} onClick={()=>openAdminSection("catalog")}><Box size={19}/><span>Produtos</span></button>
+            </nav>
+            <button type="button" className="drawer-store-link" onClick={onStore}><Store size={18}/>Abrir catálogo do cliente</button>
+          </aside>
+        </div>
+      )}
 
       <main className="admin-main">
         <header className="admin-header">
-          <div><span className="eyebrow">MH DISTRIBUIDORA</span><h1>Painel Comercial</h1><p>Acompanhe as solicitações que chegam pelo canal digital.</p></div>
+          <div>
+            <span className="eyebrow">MH DISTRIBUIDORA</span>
+            <h1 className="desktop-admin-title">Painel Comercial</h1>
+            <h1 className="mobile-admin-title">
+              {adminSection==="overview" && "Visão geral"}
+              {adminSection==="orders" && "Pedidos"}
+              {adminSection==="finance" && "Financeiro"}
+              {adminSection==="catalog" && "Produtos"}
+            </h1>
+            <p>
+              {adminSection==="overview" && "Resumo da operação."}
+              {adminSection==="orders" && "Aceite, separação e acompanhamento."}
+              {adminSection==="finance" && "Valores, recebimentos e saldos."}
+              {adminSection==="catalog" && "Linhas e produtos cadastrados."}
+            </p>
+          </div>
           <div className="admin-user"><span>MH</span><div><b>Equipe Comercial</b><small>Administrador</small></div></div>
         </header>
 
-        <section className="metric-grid metric-grid-five">
+        <section className={"metric-grid metric-grid-five admin-mobile-module " + (adminSection==="overview" ? "mobile-active" : "")}>
           <article><i className="red"><ShoppingCart size={22}/></i><div><b>{counts.aguardando}</b><span>Aguardando aceite</span></div></article>
           <article><i className="purple"><CheckCircle2 size={22}/></i><div><b>{counts.aceitos}</b><span>Pedidos aceitos</span></div></article>
           <article><i className="yellow"><Box size={22}/></i><div><b>{counts.separacao}</b><span>Em separação</span></div></article>
@@ -927,7 +981,7 @@ function Admin({ onStore }: { onStore: () => void }) {
           <article><i className="green"><CheckCircle2 size={22}/></i><div><b>{counts.concluidos}</b><span>Concluídos</span></div></article>
         </section>
 
-        <section className="finance-module" id="financeiro">
+        <section className={"finance-module admin-mobile-module " + (adminSection==="finance" ? "mobile-active" : "")} id="financeiro">
           <div className="finance-heading">
             <div><span className="eyebrow">FINANCEIRO</span><h2>Visão financeira da operação</h2><p>Valores demonstrativos para apresentar o fluxo financeiro ligado aos pedidos.</p></div>
             <span className="finance-demo-badge">DEMONSTRAÇÃO</span>
@@ -938,6 +992,22 @@ function Admin({ onStore }: { onStore: () => void }) {
             <article><i><Wallet size={21}/></i><div><span>Recebido</span><b>{money.format(finance.received)}</b></div></article>
             <article><i><Receipt size={21}/></i><div><span>A receber</span><b>{money.format(finance.receivable)}</b></div></article>
             <article><i><CreditCard size={21}/></i><div><span>Sem valor definido</span><b>{finance.undefinedCount}</b></div></article>
+          </div>
+
+          <div className="finance-mobile-list">
+            {orders.map(order => (
+              <button type="button" className="finance-mobile-card" key={"finance-mobile-"+order.id} onClick={()=>setSelectedOrder(order)}>
+                <div className="finance-mobile-card-head">
+                  <div><span>Pedido #{order.id.replace("MH-","")}</span><b>{order.client}</b></div>
+                  <span className={"finance-status "+financeStatus(order).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-")}>{financeStatus(order)}</span>
+                </div>
+                <div className="finance-mobile-card-values">
+                  <div><span>Confirmado</span><b>{order.commercialValue > 0 ? money.format(order.commercialValue) : "A definir"}</b></div>
+                  <div><span>Recebido</span><b>{order.paidAmount > 0 ? money.format(order.paidAmount) : "—"}</b></div>
+                  <div><span>Saldo</span><b>{order.commercialValue > 0 ? money.format(Math.max(0,order.commercialValue-order.paidAmount)) : "—"}</b></div>
+                </div>
+              </button>
+            ))}
           </div>
 
           <div className="finance-table-wrap">
@@ -960,12 +1030,12 @@ function Admin({ onStore }: { onStore: () => void }) {
           </div>
         </section>
 
-        <section className="admin-panel orders-panel" id="pedidos">
+        <section className={"admin-panel orders-panel admin-mobile-module " + (adminSection==="orders" ? "mobile-active" : "")} id="pedidos">
           <div className="admin-panel-head orders-panel-head">
             <div>
               <span className="eyebrow">OPERAÇÃO</span>
               <h2>Pedidos</h2>
-              <span>Visualização em cards para triagem, aceite e andamento da operação.</span>
+              <span>Pedidos organizados por etapa, com aceite e acompanhamento da operação.</span>
             </div>
             <button type="button" onClick={()=>setOrderFilter("Todos")}>Todos os pedidos <ArrowRight size={14}/></button>
           </div>
@@ -1049,7 +1119,7 @@ function Admin({ onStore }: { onStore: () => void }) {
           </div>
         </section>
 
-        <section className="admin-bottom-grid">
+        <section className={"admin-bottom-grid admin-mobile-module " + (adminSection==="catalog" ? "mobile-active" : "")}>
           <article className="admin-panel" id="produtos">
             <span className="eyebrow">CATÁLOGO</span>
             <h2>42 SKUs demonstrativos</h2>
@@ -1060,9 +1130,9 @@ function Admin({ onStore }: { onStore: () => void }) {
           </article>
 
           <article className="admin-panel accent-panel">
-            <span className="eyebrow">FLUXO B2B</span>
-            <h2>Do catálogo ao comercial sem perder o WhatsApp.</h2>
-            <p>O cliente monta a seleção digitalmente. A equipe recebe o pedido organizado e continua a negociação comercial.</p>
+            <span className="eyebrow">FLUXO DE PEDIDOS</span>
+            <h2>Do catálogo ao comercial com tudo organizado.</h2>
+            <p>O cliente monta a seleção, a equipe recebe o pedido organizado e segue com o atendimento comercial.</p>
             <button type="button" onClick={onStore}>Abrir experiência do cliente <ChevronRight size={17}/></button>
           </article>
         </section>
@@ -1293,19 +1363,13 @@ function AppPremiumInner() {
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
-  const goAdmin = () => {
-    window.history.pushState({}, "", "/admin");
-    setMode("admin");
-    window.scrollTo({ top: 0 });
-  };
-
   const goStore = () => {
     window.history.pushState({}, "", "/");
     setMode("store");
     window.scrollTo({ top: 0 });
   };
 
-  return mode === "admin" ? <Admin onStore={goStore}/> : <Storefront onAdmin={goAdmin}/>;
+  return mode === "admin" ? <Admin onStore={goStore}/> : <Storefront/>;
 }
 
 export default function AppPremium() {
