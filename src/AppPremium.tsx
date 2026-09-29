@@ -377,22 +377,15 @@ function HeroCarousel({ onCatalog, onCategory }: { onCatalog: () => void; onCate
       onMouseLeave={() => setPaused(false)}
       aria-label="Destaques comerciais MH"
     >
-      <div className="hero-media" style={{ backgroundImage: `url("${slide.image}")` }} aria-hidden="true" />
-      <div className="hero-overlay" />
-
-      <div className="hero-content">
-        <div className="hero-brand"><Logo/></div>
-        <div className="hero-copy">
-          <span className="hero-kicker">{slide.kicker}</span>
-          <h1>{slide.title} <em>{slide.accent}</em></h1>
-          <p>{slide.description}</p>
-          <div className="hero-chips">
-            {slide.chips.map(chip => (
-              <div key={chip.label}><ChipIcon kind={chip.icon}/><span>{chip.label}</span></div>
-            ))}
-          </div>
-          <button type="button" className="hero-cta" onClick={action}>{slide.cta}<ArrowRight size={19}/></button>
-        </div>
+      <button
+        type="button"
+        className="hero-media hero-media-premium"
+        style={{ backgroundImage: `url("${slide.image}")` }}
+        onClick={action}
+        aria-label={slide.cta}
+      />
+      <div className="hero-premium-action">
+        <button type="button" onClick={action}>{slide.cta}<ArrowRight size={17}/></button>
       </div>
 
       <button type="button" className="hero-arrow left" onClick={() => go(index - 1)} aria-label="Banner anterior"><ArrowLeft size={19}/></button>
