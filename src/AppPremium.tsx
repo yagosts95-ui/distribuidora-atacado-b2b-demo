@@ -564,13 +564,61 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
   );
 }
 
-const baseOrders = [
-  { id:"MH-1028",client:"Açougue Central",city:"Goiânia",itemCount:12,status:"Novo" as Status },
-  { id:"MH-1027",client:"Supermercado Goiás",city:"Aparecida de Goiânia",itemCount:8,status:"Em separação" as Status },
-  { id:"MH-1026",client:"Casa de Carnes do Povo",city:"Goiânia",itemCount:5,status:"Saiu para entrega" as Status },
-  { id:"MH-1025",client:"Rede Econômica",city:"Trindade",itemCount:21,status:"Concluído" as Status },
-  { id:"MH-1024",client:"Mercado Alves",city:"Goiânia",itemCount:9,status:"Concluído" as Status }
+const baseOrders: DemoOrder[] = [
+  {
+    id:"MH-1028", client:"Açougue Central", phone:"(62) 99911-2233", city:"Goiânia",
+    delivery:"Entrega", note:"Receber até 16h.", itemCount:12, status:"Novo",
+    createdAt:"2026-09-29T13:42:00-03:00",
+    items:[
+      {code:"6605",name:"Cupim Grill",qty:4},
+      {code:"5305",name:"Contra Filé Grill",qty:5},
+      {code:"5803",name:"Picanha Grill",qty:3}
+    ]
+  },
+  {
+    id:"MH-1027", client:"Supermercado Goiás", phone:"(62) 99821-7744", city:"Aparecida de Goiânia",
+    delivery:"Entrega", note:"Separar por linha.", itemCount:8, status:"Em separação",
+    createdAt:"2026-09-29T12:18:00-03:00",
+    items:[
+      {code:"5211",name:"Filé Mignon sem Cordão",qty:3},
+      {code:"5701",name:"Coxão Mole",qty:3},
+      {code:"5101",name:"Patinho",qty:2}
+    ]
+  },
+  {
+    id:"MH-1026", client:"Casa de Carnes do Povo", phone:"(62) 99644-3801", city:"Goiânia",
+    delivery:"Entrega", note:"Cliente recorrente.", itemCount:5, status:"Saiu para entrega",
+    createdAt:"2026-09-29T10:05:00-03:00",
+    items:[
+      {code:"5801",name:"Picanha (A)",qty:2},
+      {code:"6101",name:"Fralda",qty:3}
+    ]
+  },
+  {
+    id:"MH-1025", client:"Rede Econômica", phone:"(62) 99325-1490", city:"Trindade",
+    delivery:"Retirada", note:"Retirada pelo comprador.", itemCount:21, status:"Concluído",
+    createdAt:"2026-09-28T16:40:00-03:00",
+    items:[
+      {code:"6301",name:"Acém com Pescoço",qty:8},
+      {code:"6201",name:"Peito",qty:6},
+      {code:"6405",name:"Paleta sem Músculo",qty:7}
+    ]
+  },
+  {
+    id:"MH-1024", client:"Mercado Alves", phone:"(62) 99510-4200", city:"Goiânia",
+    delivery:"Entrega", note:"Conferir disponibilidade antes do faturamento.", itemCount:9, status:"Concluído",
+    createdAt:"2026-09-28T14:15:00-03:00",
+    items:[
+      {code:"6606",name:"Costela Desossada",qty:4},
+      {code:"6502",name:"Costela em Tiras",qty:5}
+    ]
+  }
 ];
+
+const dateTime = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short"
+});
 
 function Badge({ status }: { status: Status }) {
   const cls = status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-");
@@ -578,16 +626,35 @@ function Badge({ status }: { status: Status }) {
 }
 
 function Admin({ onStore }: { onStore: () => void }) {
-  const [orders,setOrders] = useState<DemoOrder[]>([]);
+  const [orders,setOrders] = useState<DemoOrder[]>(baseOrders);
+  const [selectedOrder,setSelectedOrder] = useState<DemoOrder | null>(null);
 
   useEffect(()=>{
-    try { setOrders(JSON.parse(localStorage.getItem("mh-demo-orders")||"[]")); } catch { setOrders([]); }
+    try {
+      const saved: DemoOrder[] = JSON.parse(localStorage.getItem("mh-demo-orders")||"[]");
+      const savedIds = new Set(saved.map(order => order.id));
+      setOrders([...saved, ...baseOrders.filter(order => !savedIds.has(order.id))]);
+    } catch {
+      setOrders(baseOrders);
+    }
   },[]);
 
-  const rows = [
-    ...orders.map(o => ({ id:o.id, client:o.client, city:o.city, itemCount:o.itemCount, status:o.status })),
-    ...baseOrders
-  ];
+  const updateStatus = (id: string, status: Status) => {
+    setOrders(current => {
+      const next = current.map(order => order.id === id ? { ...order, status } : order);
+      const baseIds = new Set(baseOrders.map(order => order.id));
+      localStorage.setItem("mh-demo-orders", JSON.stringify(next.filter(order => !baseIds.has(order.id)).slice(0,30)));
+      return next;
+    });
+    setSelectedOrder(current => current?.id === id ? { ...current, status } : current);
+  };
+
+  const counts = {
+    novos: orders.filter(order => order.status === "Novo").length,
+    separacao: orders.filter(order => order.status === "Em separação").length,
+    entrega: orders.filter(order => order.status === "Saiu para entrega").length,
+    concluidos: orders.filter(order => order.status === "Concluído").length
+  };
 
   return (
     <div className="admin-layout dark-admin">
@@ -609,26 +676,38 @@ function Admin({ onStore }: { onStore: () => void }) {
         </header>
 
         <section className="metric-grid">
-          <article><i className="red"><ShoppingCart size={22}/></i><div><b>{28+orders.length}</b><span>Novos pedidos</span></div></article>
-          <article><i className="yellow"><Box size={22}/></i><div><b>17</b><span>Em separação</span></div></article>
-          <article><i className="blue"><Truck size={22}/></i><div><b>12</b><span>Saiu para entrega</span></div></article>
-          <article><i className="green"><CheckCircle2 size={22}/></i><div><b>156</b><span>Concluídos</span></div></article>
+          <article><i className="red"><ShoppingCart size={22}/></i><div><b>{counts.novos}</b><span>Novos pedidos</span></div></article>
+          <article><i className="yellow"><Box size={22}/></i><div><b>{counts.separacao}</b><span>Em separação</span></div></article>
+          <article><i className="blue"><Truck size={22}/></i><div><b>{counts.entrega}</b><span>Saiu para entrega</span></div></article>
+          <article><i className="green"><CheckCircle2 size={22}/></i><div><b>{counts.concluidos}</b><span>Concluídos</span></div></article>
         </section>
 
         <section className="admin-panel" id="pedidos">
-          <div className="admin-panel-head"><div><h2>Últimos pedidos</h2><span>Solicitações recebidas pelo MH Digital</span></div><button type="button">Ver todos <ArrowRight size={14}/></button></div>
+          <div className="admin-panel-head">
+            <div><h2>Últimos pedidos</h2><span>Clique em qualquer pedido para abrir os detalhes completos.</span></div>
+            <button type="button" onClick={()=>document.getElementById("pedidos")?.scrollIntoView({behavior:"smooth"})}>Ver todos <ArrowRight size={14}/></button>
+          </div>
+
           <div className="admin-table-wrap">
             <table>
               <thead><tr><th># Pedido</th><th>Cliente</th><th>Cidade</th><th>Itens</th><th>Status</th><th>Ações</th></tr></thead>
               <tbody>
-                {rows.map(order=>(
-                  <tr key={order.id}>
+                {orders.map(order=>(
+                  <tr key={order.id} className="order-row" onClick={()=>setSelectedOrder(order)}>
                     <td><b>#{order.id.replace("MH-","")}</b></td>
                     <td>{order.client}</td>
                     <td>{order.city}</td>
                     <td>{order.itemCount}</td>
                     <td><Badge status={order.status}/></td>
-                    <td><button type="button" className="dots">•••</button></td>
+                    <td>
+                      <button
+                        type="button"
+                        className="view-order"
+                        onClick={(event)=>{ event.stopPropagation(); setSelectedOrder(order); }}
+                      >
+                        Visualizar <ChevronRight size={14}/>
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -654,6 +733,95 @@ function Admin({ onStore }: { onStore: () => void }) {
           </article>
         </section>
       </main>
+
+      {selectedOrder && (
+        <div className="order-modal-backdrop" role="presentation" onMouseDown={()=>setSelectedOrder(null)}>
+          <section
+            className="order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Detalhes do pedido ${selectedOrder.id}`}
+            onMouseDown={event=>event.stopPropagation()}
+          >
+            <header className="order-modal-head">
+              <div>
+                <span className="eyebrow">DETALHES DO PEDIDO</span>
+                <h2>#{selectedOrder.id.replace("MH-","")}</h2>
+                <p>{dateTime.format(new Date(selectedOrder.createdAt))}</p>
+              </div>
+              <button type="button" className="modal-close" onClick={()=>setSelectedOrder(null)} aria-label="Fechar detalhes"><X size={19}/></button>
+            </header>
+
+            <div className="order-detail-grid">
+              <article>
+                <span>Cliente / empresa</span>
+                <b>{selectedOrder.client}</b>
+              </article>
+              <article>
+                <span>WhatsApp</span>
+                <b>{selectedOrder.phone || "Não informado"}</b>
+              </article>
+              <article>
+                <span>Cidade</span>
+                <b>{selectedOrder.city}</b>
+              </article>
+              <article>
+                <span>Recebimento</span>
+                <b>{selectedOrder.delivery}</b>
+              </article>
+            </div>
+
+            <div className="order-detail-status">
+              <div><span>Status atual</span><Badge status={selectedOrder.status}/></div>
+              <div className="status-actions">
+                {(["Novo","Em separação","Saiu para entrega","Concluído"] as Status[]).map(status=>(
+                  <button
+                    type="button"
+                    key={status}
+                    className={selectedOrder.status===status ? "active" : ""}
+                    onClick={()=>updateStatus(selectedOrder.id,status)}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="order-items">
+              <div className="order-items-head">
+                <div><span className="eyebrow">ITENS DO PEDIDO</span><h3>{selectedOrder.itemCount} unidades selecionadas</h3></div>
+              </div>
+              {selectedOrder.items?.length ? selectedOrder.items.map(item=>{
+                const product = products.find(product => product.code === item.code);
+                return (
+                  <article className="order-item-line" key={item.code}>
+                    <div className="order-item-thumb">
+                      {product ? <ProductPhoto product={product}/> : <Box size={23}/>}
+                    </div>
+                    <div className="order-item-copy">
+                      <span>SKU {item.code}</span>
+                      <b>{item.name}</b>
+                    </div>
+                    <div className="order-item-qty"><span>Qtd.</span><b>{item.qty}</b></div>
+                  </article>
+                );
+              }) : (
+                <div className="order-items-empty">Itens detalhados não disponíveis para este pedido demonstrativo.</div>
+              )}
+            </div>
+
+            <div className="order-note">
+              <span>Observações</span>
+              <p>{selectedOrder.note || "Sem observações."}</p>
+            </div>
+
+            <footer className="order-modal-footer">
+              <button type="button" className="secondary modal-secondary" onClick={()=>setSelectedOrder(null)}>Fechar</button>
+              <button type="button" className="primary" onClick={onStore}>Abrir catálogo do cliente</button>
+            </footer>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
