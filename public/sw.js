@@ -1,5 +1,5 @@
-const CACHE = "mh-digital-v4";
-const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo.webp", "/assets/b2b-triptych.webp"];
+const CACHE = "mh-digital-v5";
+const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo.svg", "/assets/hero-distribution.svg", "/assets/hero-grill.svg", "/assets/hero-logistics.svg", "/assets/b2b-catalog.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
