@@ -856,3 +856,221 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
   .overview-finance-values{grid-template-columns:1fr}
   .overview-finance-values b{font-size:13px}
 }
+
+
+/* PREMIUM ASSET INTEGRATION */
+.brand-logo{
+  position:relative;
+  width:300px;
+  height:62px;
+  overflow:hidden;
+  flex:0 0 auto;
+}
+.brand-logo img{
+  position:absolute;
+  left:0;
+  top:50%;
+  width:100%;
+  max-width:none;
+  height:auto!important;
+  transform:translateY(-50%);
+  object-fit:initial;
+}
+.brand-logo.compact{width:225px;height:48px}
+.brand-logo.compact img{width:100%}
+
+.hero-carousel{
+  min-height:0;
+  height:auto;
+  aspect-ratio:16/9;
+  max-height:620px;
+  background:#050505;
+}
+.hero-media-premium{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  padding:0;
+  background-color:#050505;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  cursor:pointer;
+  transform:none;
+}
+.hero-carousel:hover .hero-media-premium{
+  transform:scale(1.012);
+  filter:saturate(1.03) contrast(1.02);
+}
+.hero-premium-action{
+  position:absolute;
+  z-index:6;
+  right:24px;
+  bottom:22px;
+}
+.hero-premium-action button{
+  min-height:44px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:12px;
+  background:rgba(7,7,7,.72);
+  color:#fff;
+  padding:0 15px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:9px;
+  font-weight:900;
+  backdrop-filter:blur(10px);
+}
+.hero-premium-action button:hover{background:#d9212d;border-color:#e7313c}
+
+.product-photo-premium{
+  height:auto;
+  aspect-ratio:4/3;
+  background:#090909;
+}
+.product-photo-premium img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* Premium catalog becomes a major visual module */
+.catalog-premium-banner{
+  width:100%;
+  aspect-ratio:16/9;
+  max-height:420px;
+  padding:0;
+  border:1px solid #2b2e32;
+  border-radius:20px;
+  overflow:hidden;
+  background:#080808;
+  display:block;
+  margin:0 0 18px;
+  box-shadow:0 20px 45px rgba(0,0,0,.28);
+}
+.catalog-premium-banner img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.catalog-page .catalog-toolbar{margin-top:4px}
+.catalog-page .catalog-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.catalog-page .product-card{
+  border-radius:20px;
+  border-color:#303338;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.catalog-page .product-photo{
+  height:auto;
+  aspect-ratio:4/3;
+}
+.catalog-page .product-card-body{padding:15px}
+.catalog-page .product-card h3{
+  font-size:17px;
+  min-height:39px;
+  margin:6px 0 14px;
+}
+.catalog-page .commercial-price strong{font-size:23px}
+.catalog-page .product-action>button{height:40px;font-size:10px}
+
+@media(max-width:1100px){
+  .catalog-page .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand-logo{width:260px;height:58px}
+}
+
+@media(max-width:840px){
+  .brand-logo{width:220px;height:46px}
+  .brand-logo.compact{width:185px;height:40px}
+  .client-mobile-header .brand-logo img,
+  .admin-mobile-topbar .brand-logo img,
+  .admin-mobile-drawer>header .brand-logo img,
+  .success-header .brand-logo img{
+    width:100%!important;
+    height:auto!important;
+    max-width:none!important;
+  }
+
+  .hero-carousel{
+    margin:10px 12px 16px;
+    aspect-ratio:16/9;
+    min-height:0;
+    max-height:none;
+    border-radius:17px;
+  }
+  .hero-content,.hero-copy,.hero-overlay{display:none!important}
+  .hero-media-premium{
+    background-size:cover;
+    background-position:center;
+  }
+  .hero-premium-action{
+    right:10px;
+    bottom:9px;
+  }
+  .hero-premium-action button{
+    min-height:34px;
+    border-radius:9px;
+    padding:0 10px;
+    font-size:7px;
+    background:rgba(0,0,0,.72);
+  }
+  .hero-dots{bottom:8px;left:14px;transform:none}
+  .hero-dots button{width:6px;height:6px}
+  .hero-dots button.active{width:19px}
+  
+  .catalog-premium-banner{
+    margin:0 0 13px;
+    border-radius:14px;
+    max-height:none;
+  }
+  .catalog-page .catalog-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .catalog-page .product-card{
+    display:block;
+    min-height:0;
+    border-radius:16px;
+  }
+  .catalog-page .product-photo{
+    height:auto;
+    min-height:0;
+    aspect-ratio:4/3;
+  }
+  .catalog-page .product-photo-premium img{
+    object-position:center;
+  }
+  .catalog-page .product-card-body{
+    padding:12px 13px 13px;
+  }
+  .catalog-page .product-card h3{
+    font-size:15px;
+    min-height:0;
+    margin:5px 0 11px;
+  }
+  .catalog-page .commercial-price strong{font-size:20px}
+  .catalog-page .product-action{margin-top:9px}
+  .catalog-page .product-action>button{height:38px;font-size:9px}
+
+  /* Home stays compact on mobile; crop premium art toward the meat */
+  .products-section .product-photo-premium{aspect-ratio:auto;height:100%;min-height:126px}
+  .products-section .product-photo-premium img{
+    object-fit:cover;
+    object-position:24% center;
+  }
+}
+
+@media(max-width:420px){
+  .brand-logo{width:195px;height:42px}
+  .brand-logo.compact{width:170px;height:37px}
+  .catalog-page .product-card-body{padding:11px}
+  .catalog-page .product-card h3{font-size:14px}
+}
