@@ -1,5 +1,5 @@
-const CACHE = "mh-digital-v8";
-const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo.svg", "/assets/hero-distribution.svg", "/assets/hero-grill.svg", "/assets/hero-logistics.svg", "/assets/b2b-catalog.svg"];
+const CACHE = "mh-digital-v9";
+const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo-premium.png", "/assets/banner-abastecimento.png", "/assets/banner-linha-grill.png", "/assets/banner-estoque-negocio.png", "/assets/catalog-header-mh.png", "/assets/cards/sku-1001-cupim-grill.png", "/assets/cards/sku-1002-contra-file-grill.png", "/assets/cards/sku-1003-picanha-grill.png", "/assets/cards/sku-1004-file-mignon-sem-cordao.png", "/assets/cards/sku-1005-alcatra-coracao-grill.png", "/assets/cards/sku-1006-costela-desossada.png", "/assets/b2b-catalog.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
