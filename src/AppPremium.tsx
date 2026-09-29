@@ -8,9 +8,9 @@ import { categories, featuredCodes, products, type CategoryId, type Product } fr
 import "./premium.css";
 
 type Cart = Record<string, number>;
-type StoreView = "home" | "catalog" | "cart" | "checkout" | "success";
+type StoreView = "home" | "catalog" | "cart" | "checkout" | "success" | "orders";
 type AppMode = "store" | "admin";
-type Status = "Novo" | "Em separação" | "Saiu para entrega" | "Concluído";
+type Status = "Aguardando aceite" | "Pedido aceito" | "Em separação" | "Saiu para entrega" | "Concluído";
 
 type DemoOrder = {
   id: string;
@@ -38,6 +38,26 @@ type HeroSlide = {
 };
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+const statusFlow: Status[] = ["Aguardando aceite", "Pedido aceito", "Em separação", "Saiu para entrega", "Concluído"];
+
+function statusIndex(status: Status) {
+  return statusFlow.indexOf(status);
+}
+
+function nextStatus(status: Status): Status | null {
+  const index = statusIndex(status);
+  return index >= 0 && index < statusFlow.length - 1 ? statusFlow[index + 1] : null;
+}
+
+function nextStatusLabel(status: Status) {
+  if (status === "Aguardando aceite") return "Aceitar pedido";
+  if (status === "Pedido aceito") return "Iniciar separação";
+  if (status === "Em separação") return "Marcar saída para entrega";
+  if (status === "Saiu para entrega") return "Concluir pedido";
+  return "Pedido concluído";
+}
+
 const ASSET_LOGO = "/assets/mh-logo.svg";
 const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 
@@ -281,10 +301,26 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
     try { return JSON.parse(localStorage.getItem("mh-demo-cart") || "{}"); } catch { return {}; }
   });
   const [form, setForm] = useState({ client: "", phone: "", city: "Goiânia", delivery: "Entrega" as "Entrega" | "Retirada", note: "" });
+  const [customerOrders, setCustomerOrders] = useState<DemoOrder[]>(() => {
+    try { return JSON.parse(localStorage.getItem("mh-demo-orders") || "[]"); } catch { return []; }
+  });
 
   useEffect(() => {
     localStorage.setItem("mh-demo-cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    const syncOrders = () => {
+      try { setCustomerOrders(JSON.parse(localStorage.getItem("mh-demo-orders") || "[]")); }
+      catch { setCustomerOrders([]); }
+    };
+    window.addEventListener("storage", syncOrders);
+    window.addEventListener("focus", syncOrders);
+    return () => {
+      window.removeEventListener("storage", syncOrders);
+      window.removeEventListener("focus", syncOrders);
+    };
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -337,14 +373,16 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
       delivery: form.delivery,
       note: form.note.trim(),
       itemCount,
-      status: "Novo",
+      status: "Aguardando aceite",
       createdAt: new Date().toISOString(),
       items: items.map(({product, qty}) => ({ code: product.code, name: product.name, qty }))
     };
 
     let current: DemoOrder[] = [];
     try { current = JSON.parse(localStorage.getItem("mh-demo-orders") || "[]"); } catch {}
-    localStorage.setItem("mh-demo-orders", JSON.stringify([order,...current].slice(0,30)));
+    const nextOrders = [order,...current].slice(0,30);
+    localStorage.setItem("mh-demo-orders", JSON.stringify(nextOrders));
+    setCustomerOrders(nextOrders);
 
     setOrderId(id);
     setCart({});
@@ -362,13 +400,13 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
           <div className="success-icon"><CheckCircle2 size={43}/></div>
           <span className="eyebrow">SOLICITAÇÃO REGISTRADA</span>
           <h1>{orderId}</h1>
-          <p>O pedido demonstrativo foi registrado. A equipe comercial confirma disponibilidade, unidade e condição comercial.</p>
+          <p>O pedido foi enviado para a MH e agora aguarda o aceite da equipe comercial.</p>
           <div className="success-card">
-            <div><span>Status</span><b>Novo pedido</b></div>
-            <div><span>Canal</span><b>MH Digital B2B</b></div>
+            <div><span>Status</span><b>Aguardando aceite</b></div>
+            <div><span>Próximo passo</span><b>Confirmação da MH</b></div>
           </div>
-          <button type="button" className="primary full-limit" onClick={()=>setView("home")}>Voltar ao início</button>
-          <button type="button" className="secondary full-limit" onClick={onAdmin}>Abrir painel gestor</button>
+          <button type="button" className="primary full-limit" onClick={()=>setView("orders")}>Acompanhar pedido</button>
+          <button type="button" className="secondary full-limit" onClick={()=>setView("home")}>Voltar ao início</button>
         </main>
       </div>
     );
@@ -384,7 +422,7 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
           <button type="button" className={view==="home" ? "active" : ""} onClick={()=>setView("home")}>Início</button>
           <button type="button" className={view==="catalog" ? "active" : ""} onClick={openCatalog}>Catálogo</button>
           <button type="button" className={view==="cart"||view==="checkout" ? "active" : ""} onClick={()=>setView("cart")}>Meu pedido {itemCount>0 && <b>{itemCount}</b>}</button>
-          <button type="button" onClick={onAdmin}>Painel comercial</button>
+          <button type="button" className={view==="orders" ? "active" : ""} onClick={()=>setView("orders")}>Meus pedidos</button>
         </nav>
         <button type="button" className="cart-icon" onClick={()=>setView("cart")}><ShoppingCart size={20}/>{itemCount>0&&<b>{itemCount}</b>}</button>
       </header>
@@ -552,13 +590,76 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
             </aside>
           </div>
         </section>}
+
+        {view === "orders" && <section className="page-section customer-orders-page">
+          <div className="page-title">
+            <button type="button" onClick={()=>setView("home")}><ArrowLeft size={20}/></button>
+            <div><span className="eyebrow">ACOMPANHAMENTO</span><h1>Meus pedidos</h1><p>Acompanhe o aceite e cada etapa da operação MH.</p></div>
+          </div>
+
+          {!customerOrders.length ? (
+            <div className="empty-state">
+              <ClipboardList size={43}/>
+              <h2>Nenhum pedido enviado ainda</h2>
+              <p>Monte seu primeiro pedido pelo catálogo.</p>
+              <button type="button" className="primary" onClick={openCatalog}>Abrir catálogo</button>
+            </div>
+          ) : (
+            <div className="customer-orders-list">
+              {customerOrders.map(order => {
+                const currentIndex = statusIndex(order.status);
+                return (
+                  <article className="customer-order-card" key={order.id}>
+                    <header>
+                      <div><span className="eyebrow">PEDIDO</span><h2>#{order.id.replace("MH-","")}</h2></div>
+                      <Badge status={order.status}/>
+                    </header>
+
+                    <div className="customer-order-meta">
+                      <div><span>Empresa</span><b>{order.client}</b></div>
+                      <div><span>Itens</span><b>{order.itemCount}</b></div>
+                      <div><span>Recebimento</span><b>{order.delivery}</b></div>
+                    </div>
+
+                    <div className="customer-timeline">
+                      {statusFlow.map((status, index) => (
+                        <div
+                          key={status}
+                          className={"timeline-step " + (index < currentIndex ? "done " : "") + (index === currentIndex ? "current" : "")}
+                        >
+                          <i>{index < currentIndex ? <CheckCircle2 size={15}/> : index + 1}</i>
+                          <span>{status}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="customer-order-items">
+                      {order.items.slice(0,4).map(item => (
+                        <span key={item.code}><b>{item.qty}×</b> {item.name}</span>
+                      ))}
+                      {order.items.length > 4 && <span>+ {order.items.length - 4} itens</span>}
+                    </div>
+
+                    <p className="customer-status-copy">
+                      {order.status === "Aguardando aceite" && "A MH recebeu sua solicitação. O próximo passo é o aceite comercial."}
+                      {order.status === "Pedido aceito" && "Pedido aceito pela MH. A operação pode iniciar a separação."}
+                      {order.status === "Em separação" && "Seu pedido está sendo separado pela equipe MH."}
+                      {order.status === "Saiu para entrega" && "Seu pedido saiu para entrega."}
+                      {order.status === "Concluído" && "Pedido concluído."}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>}
       </main>
 
       <nav className="mobile-nav">
         <button type="button" className={view==="home"?"active":""} onClick={()=>setView("home")}><Home size={19}/><span>Início</span></button>
         <button type="button" className={view==="catalog"?"active":""} onClick={openCatalog}><Menu size={19}/><span>Catálogo</span></button>
         <button type="button" className={view==="cart"||view==="checkout"?"active":""} onClick={()=>setView("cart")}><ShoppingCart size={19}/><span>Meu Pedido</span>{itemCount>0&&<b>{itemCount}</b>}</button>
-        <button type="button" onClick={onAdmin}><ClipboardList size={19}/><span>Painel</span></button>
+        <button type="button" className={view==="orders"?"active":""} onClick={()=>setView("orders")}><ClipboardList size={19}/><span>Pedidos</span></button>
       </nav>
     </div>
   );
@@ -567,7 +668,7 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
 const baseOrders: DemoOrder[] = [
   {
     id:"MH-1028", client:"Açougue Central", phone:"(62) 99911-2233", city:"Goiânia",
-    delivery:"Entrega", note:"Receber até 16h.", itemCount:12, status:"Novo",
+    delivery:"Entrega", note:"Receber até 16h.", itemCount:12, status:"Aguardando aceite",
     createdAt:"2026-09-29T13:42:00-03:00",
     items:[
       {code:"6605",name:"Cupim Grill",qty:4},
@@ -577,7 +678,7 @@ const baseOrders: DemoOrder[] = [
   },
   {
     id:"MH-1027", client:"Supermercado Goiás", phone:"(62) 99821-7744", city:"Aparecida de Goiânia",
-    delivery:"Entrega", note:"Separar por linha.", itemCount:8, status:"Em separação",
+    delivery:"Entrega", note:"Separar por linha.", itemCount:8, status:"Pedido aceito",
     createdAt:"2026-09-29T12:18:00-03:00",
     items:[
       {code:"5211",name:"Filé Mignon sem Cordão",qty:3},
@@ -650,7 +751,8 @@ function Admin({ onStore }: { onStore: () => void }) {
   };
 
   const counts = {
-    novos: orders.filter(order => order.status === "Novo").length,
+    aguardando: orders.filter(order => order.status === "Aguardando aceite").length,
+    aceitos: orders.filter(order => order.status === "Pedido aceito").length,
     separacao: orders.filter(order => order.status === "Em separação").length,
     entrega: orders.filter(order => order.status === "Saiu para entrega").length,
     concluidos: orders.filter(order => order.status === "Concluído").length
@@ -675,10 +777,11 @@ function Admin({ onStore }: { onStore: () => void }) {
           <div className="admin-user"><span>MH</span><div><b>Equipe Comercial</b><small>Administrador</small></div></div>
         </header>
 
-        <section className="metric-grid">
-          <article><i className="red"><ShoppingCart size={22}/></i><div><b>{counts.novos}</b><span>Novos pedidos</span></div></article>
+        <section className="metric-grid metric-grid-five">
+          <article><i className="red"><ShoppingCart size={22}/></i><div><b>{counts.aguardando}</b><span>Aguardando aceite</span></div></article>
+          <article><i className="purple"><CheckCircle2 size={22}/></i><div><b>{counts.aceitos}</b><span>Pedidos aceitos</span></div></article>
           <article><i className="yellow"><Box size={22}/></i><div><b>{counts.separacao}</b><span>Em separação</span></div></article>
-          <article><i className="blue"><Truck size={22}/></i><div><b>{counts.entrega}</b><span>Saiu para entrega</span></div></article>
+          <article><i className="blue"><Truck size={22}/></i><div><b>{counts.entrega}</b><span>Em entrega</span></div></article>
           <article><i className="green"><CheckCircle2 size={22}/></i><div><b>{counts.concluidos}</b><span>Concluídos</span></div></article>
         </section>
 
@@ -773,18 +876,31 @@ function Admin({ onStore }: { onStore: () => void }) {
 
             <div className="order-detail-status">
               <div><span>Status atual</span><Badge status={selectedOrder.status}/></div>
-              <div className="status-actions">
-                {(["Novo","Em separação","Saiu para entrega","Concluído"] as Status[]).map(status=>(
-                  <button
-                    type="button"
-                    key={status}
-                    className={selectedOrder.status===status ? "active" : ""}
-                    onClick={()=>updateStatus(selectedOrder.id,status)}
-                  >
-                    {status}
-                  </button>
-                ))}
+
+              <div className="admin-order-flow">
+                {statusFlow.map((status, index) => {
+                  const current = statusIndex(selectedOrder.status);
+                  return (
+                    <div key={status} className={(index < current ? "done " : "") + (index === current ? "current" : "")}>
+                      <i>{index < current ? <CheckCircle2 size={14}/> : index + 1}</i>
+                      <span>{status}</span>
+                    </div>
+                  );
+                })}
               </div>
+
+              {nextStatus(selectedOrder.status) ? (
+                <button
+                  type="button"
+                  className="accept-next-action"
+                  onClick={()=>updateStatus(selectedOrder.id,nextStatus(selectedOrder.status)!)}
+                >
+                  {selectedOrder.status === "Aguardando aceite" ? <CheckCircle2 size={18}/> : selectedOrder.status === "Saiu para entrega" ? <CheckCircle2 size={18}/> : <ArrowRight size={18}/>}
+                  {nextStatusLabel(selectedOrder.status)}
+                </button>
+              ) : (
+                <div className="flow-complete"><CheckCircle2 size={18}/> Pedido concluído</div>
+              )}
             </div>
 
             <div className="order-items">
