@@ -1,8 +1,9 @@
 import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BarChart3, Beef, Box, CheckCircle2, ChevronRight,
-  ClipboardList, Flame, Headphones, Home, Menu, Minus, PackageCheck, Plus,
-  Search, Send, ShieldCheck, ShoppingCart, Snowflake, Store, Truck, UserRound, X
+  ClipboardList, CreditCard, DollarSign, Flame, Headphones, Home, Menu, Minus,
+  PackageCheck, Plus, Receipt, Search, Send, ShieldCheck, ShoppingCart, Snowflake,
+  Store, Truck, UserRound, Wallet, X
 } from "lucide-react";
 import { categories, featuredCodes, products, type CategoryId, type Product } from "./data/products";
 import "./premium.css";
@@ -11,6 +12,7 @@ type Cart = Record<string, number>;
 type StoreView = "home" | "catalog" | "cart" | "checkout" | "success" | "orders";
 type AppMode = "store" | "admin";
 type Status = "Aguardando aceite" | "Pedido aceito" | "Em separação" | "Saiu para entrega" | "Concluído";
+type PaymentMethod = "A definir" | "PIX" | "Boleto" | "Prazo";
 
 type DemoOrder = {
   id: string;
@@ -23,6 +25,10 @@ type DemoOrder = {
   status: Status;
   createdAt: string;
   items: Array<{ code: string; name: string; qty: number }>;
+  commercialValue: number;
+  paidAmount: number;
+  paymentMethod: PaymentMethod;
+  dueDate: string;
 };
 
 type HeroSlide = {
@@ -104,7 +110,11 @@ function normalizeOrder(raw: unknown): DemoOrder | null {
     itemCount: Math.max(1, Number(value.itemCount) || computedCount || 1),
     status: normalizeStatus(value.status),
     createdAt: typeof value.createdAt === "string" && value.createdAt ? value.createdAt : new Date().toISOString(),
-    items
+    items,
+    commercialValue: Math.max(0, Number(value.commercialValue) || 0),
+    paidAmount: Math.max(0, Number(value.paidAmount) || 0),
+    paymentMethod: value.paymentMethod === "PIX" || value.paymentMethod === "Boleto" || value.paymentMethod === "Prazo" ? value.paymentMethod : "A definir",
+    dueDate: typeof value.dueDate === "string" ? value.dueDate : ""
   };
 }
 
@@ -124,6 +134,13 @@ function saveSavedOrders(orders: DemoOrder[]) {
   const normalized = orders.map(normalizeOrder).filter((order): order is DemoOrder => Boolean(order)).slice(0,30);
   localStorage.setItem("mh-demo-orders", JSON.stringify(normalized));
   window.dispatchEvent(new CustomEvent("mh-orders-updated"));
+}
+
+function financeStatus(order: DemoOrder) {
+  if (order.commercialValue <= 0) return "A definir";
+  if (order.paidAmount >= order.commercialValue) return "Pago";
+  if (order.paidAmount > 0) return "Parcial";
+  return "A receber";
 }
 
 const ASSET_LOGO = "/assets/mh-logo.svg";
@@ -440,7 +457,11 @@ function Storefront({ onAdmin }: { onAdmin: () => void }) {
       itemCount,
       status: "Aguardando aceite",
       createdAt: new Date().toISOString(),
-      items: items.map(({product, qty}) => ({ code: product.code, name: product.name, qty }))
+      items: items.map(({product, qty}) => ({ code: product.code, name: product.name, qty })),
+      commercialValue: 0,
+      paidAmount: 0,
+      paymentMethod: "A definir",
+      dueDate: ""
     };
 
     const current = loadSavedOrders();
@@ -734,6 +755,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1028", client:"Açougue Central", phone:"(62) 99911-2233", city:"Goiânia",
     delivery:"Entrega", note:"Receber até 16h.", itemCount:12, status:"Aguardando aceite",
     createdAt:"2026-09-29T13:42:00-03:00",
+    commercialValue:0, paidAmount:0, paymentMethod:"A definir", dueDate:"",
     items:[
       {code:"6605",name:"Cupim Grill",qty:4},
       {code:"5305",name:"Contra Filé Grill",qty:5},
@@ -744,6 +766,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1027", client:"Supermercado Goiás", phone:"(62) 99821-7744", city:"Aparecida de Goiânia",
     delivery:"Entrega", note:"Separar por linha.", itemCount:8, status:"Pedido aceito",
     createdAt:"2026-09-29T12:18:00-03:00",
+    commercialValue:4890, paidAmount:0, paymentMethod:"Prazo", dueDate:"2026-10-06",
     items:[
       {code:"5211",name:"Filé Mignon sem Cordão",qty:3},
       {code:"5701",name:"Coxão Mole",qty:3},
@@ -754,6 +777,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1026", client:"Casa de Carnes do Povo", phone:"(62) 99644-3801", city:"Goiânia",
     delivery:"Entrega", note:"Cliente recorrente.", itemCount:5, status:"Saiu para entrega",
     createdAt:"2026-09-29T10:05:00-03:00",
+    commercialValue:2710, paidAmount:1000, paymentMethod:"PIX", dueDate:"2026-09-30",
     items:[
       {code:"5801",name:"Picanha (A)",qty:2},
       {code:"6101",name:"Fralda",qty:3}
@@ -763,6 +787,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1025", client:"Rede Econômica", phone:"(62) 99325-1490", city:"Trindade",
     delivery:"Retirada", note:"Retirada pelo comprador.", itemCount:21, status:"Concluído",
     createdAt:"2026-09-28T16:40:00-03:00",
+    commercialValue:7850, paidAmount:7850, paymentMethod:"Boleto", dueDate:"2026-09-28",
     items:[
       {code:"6301",name:"Acém com Pescoço",qty:8},
       {code:"6201",name:"Peito",qty:6},
@@ -773,6 +798,7 @@ const baseOrders: DemoOrder[] = [
     id:"MH-1024", client:"Mercado Alves", phone:"(62) 99510-4200", city:"Goiânia",
     delivery:"Entrega", note:"Conferir disponibilidade antes do faturamento.", itemCount:9, status:"Concluído",
     createdAt:"2026-09-28T14:15:00-03:00",
+    commercialValue:3420, paidAmount:3420, paymentMethod:"PIX", dueDate:"2026-09-28",
     items:[
       {code:"6606",name:"Costela Desossada",qty:4},
       {code:"6502",name:"Costela em Tiras",qty:5}
@@ -818,6 +844,23 @@ function Admin({ onStore }: { onStore: () => void }) {
     concluidos: orders.filter(order => order.status === "Concluído").length
   };
 
+  const finance = {
+    confirmed: orders.reduce((sum, order) => sum + order.commercialValue, 0),
+    received: orders.reduce((sum, order) => sum + Math.min(order.paidAmount, order.commercialValue), 0),
+    receivable: orders.reduce((sum, order) => sum + Math.max(0, order.commercialValue - order.paidAmount), 0),
+    undefinedCount: orders.filter(order => order.commercialValue <= 0).length
+  };
+
+  const updateFinance = (id: string, patch: Partial<Pick<DemoOrder, "commercialValue" | "paidAmount" | "paymentMethod" | "dueDate">>) => {
+    setOrders(current => {
+      const next = current.map(order => order.id === id ? { ...order, ...patch } : order);
+      const baseIds = new Set(baseOrders.map(order => order.id));
+      saveSavedOrders(next.filter(order => !baseIds.has(order.id)));
+      return next;
+    });
+    setSelectedOrder(current => current?.id === id ? { ...current, ...patch } : current);
+  };
+
   return (
     <div className="admin-layout dark-admin">
       <aside className="admin-sidebar">
@@ -826,6 +869,7 @@ function Admin({ onStore }: { onStore: () => void }) {
           <button type="button" className="active"><BarChart3 size={18}/>Visão Geral</button>
           <button type="button" onClick={()=>document.getElementById("pedidos")?.scrollIntoView({behavior:"smooth"})}><ClipboardList size={18}/>Pedidos</button>
           <button type="button" onClick={()=>document.getElementById("produtos")?.scrollIntoView({behavior:"smooth"})}><Box size={18}/>Produtos</button>
+          <button type="button" onClick={()=>document.getElementById("financeiro")?.scrollIntoView({behavior:"smooth"})}><DollarSign size={18}/>Financeiro</button>
           <button type="button" onClick={onStore}><Store size={18}/>Abrir catálogo</button>
         </nav>
         <div className="admin-sidebar-foot"><span>DEMONSTRAÇÃO PREMIUM</span><b>MH Digital • B2B</b></div>
@@ -843,6 +887,39 @@ function Admin({ onStore }: { onStore: () => void }) {
           <article><i className="yellow"><Box size={22}/></i><div><b>{counts.separacao}</b><span>Em separação</span></div></article>
           <article><i className="blue"><Truck size={22}/></i><div><b>{counts.entrega}</b><span>Em entrega</span></div></article>
           <article><i className="green"><CheckCircle2 size={22}/></i><div><b>{counts.concluidos}</b><span>Concluídos</span></div></article>
+        </section>
+
+        <section className="finance-module" id="financeiro">
+          <div className="finance-heading">
+            <div><span className="eyebrow">FINANCEIRO</span><h2>Visão financeira da operação</h2><p>Valores demonstrativos para apresentar o fluxo financeiro ligado aos pedidos.</p></div>
+            <span className="finance-demo-badge">DEMONSTRAÇÃO</span>
+          </div>
+
+          <div className="finance-metrics">
+            <article><i><DollarSign size={21}/></i><div><span>Valor confirmado</span><b>{money.format(finance.confirmed)}</b></div></article>
+            <article><i><Wallet size={21}/></i><div><span>Recebido</span><b>{money.format(finance.received)}</b></div></article>
+            <article><i><Receipt size={21}/></i><div><span>A receber</span><b>{money.format(finance.receivable)}</b></div></article>
+            <article><i><CreditCard size={21}/></i><div><span>Sem valor definido</span><b>{finance.undefinedCount}</b></div></article>
+          </div>
+
+          <div className="finance-table-wrap">
+            <table className="finance-table">
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Valor confirmado</th><th>Recebido</th><th>Saldo</th><th>Forma</th><th>Situação</th></tr></thead>
+              <tbody>
+                {orders.map(order => (
+                  <tr key={"finance-"+order.id} onClick={()=>setSelectedOrder(order)}>
+                    <td><b>#{order.id.replace("MH-","")}</b></td>
+                    <td>{order.client}</td>
+                    <td>{order.commercialValue > 0 ? money.format(order.commercialValue) : "A definir"}</td>
+                    <td>{order.paidAmount > 0 ? money.format(order.paidAmount) : "—"}</td>
+                    <td>{order.commercialValue > 0 ? money.format(Math.max(0,order.commercialValue-order.paidAmount)) : "—"}</td>
+                    <td>{order.paymentMethod}</td>
+                    <td><span className={"finance-status "+financeStatus(order).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-")}>{financeStatus(order)}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className="admin-panel" id="pedidos">
@@ -984,6 +1061,59 @@ function Admin({ onStore }: { onStore: () => void }) {
               }) : (
                 <div className="order-items-empty">Itens detalhados não disponíveis para este pedido demonstrativo.</div>
               )}
+            </div>
+
+            <div className="order-finance">
+              <div className="order-finance-head">
+                <div><span className="eyebrow">FINANCEIRO DO PEDIDO</span><h3>Condição financeira</h3></div>
+                <span className={"finance-status "+financeStatus(selectedOrder).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s/g,"-")}>{financeStatus(selectedOrder)}</span>
+              </div>
+
+              <div className="finance-form-grid">
+                <label>Valor confirmado
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={selectedOrder.commercialValue || ""}
+                    onChange={event=>updateFinance(selectedOrder.id,{commercialValue:Math.max(0,Number(event.target.value)||0)})}
+                    placeholder="0,00"
+                  />
+                </label>
+                <label>Valor recebido
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={selectedOrder.paidAmount || ""}
+                    onChange={event=>updateFinance(selectedOrder.id,{paidAmount:Math.max(0,Number(event.target.value)||0)})}
+                    placeholder="0,00"
+                  />
+                </label>
+                <label>Forma de pagamento
+                  <select
+                    value={selectedOrder.paymentMethod}
+                    onChange={event=>updateFinance(selectedOrder.id,{paymentMethod:event.target.value as PaymentMethod})}
+                  >
+                    <option>A definir</option>
+                    <option>PIX</option>
+                    <option>Boleto</option>
+                    <option>Prazo</option>
+                  </select>
+                </label>
+                <label>Vencimento
+                  <input
+                    type="date"
+                    value={selectedOrder.dueDate}
+                    onChange={event=>updateFinance(selectedOrder.id,{dueDate:event.target.value})}
+                  />
+                </label>
+              </div>
+
+              <div className="finance-balance-line">
+                <span>Saldo a receber</span>
+                <b>{selectedOrder.commercialValue > 0 ? money.format(Math.max(0,selectedOrder.commercialValue-selectedOrder.paidAmount)) : "A definir"}</b>
+              </div>
             </div>
 
             <div className="order-note">
