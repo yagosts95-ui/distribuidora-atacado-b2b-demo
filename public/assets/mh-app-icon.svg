@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MH">
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="24%" r="78%">
+      <stop offset="0" stop-color="#232323"/>
+      <stop offset=".48" stop-color="#090909"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="ring" x1=".15" y1=".1" x2=".85" y2=".92">
+      <stop offset="0" stop-color="#ff4a4f"/>
+      <stop offset=".28" stop-color="#ff111c"/>
+      <stop offset=".72" stop-color="#9d050c"/>
+      <stop offset="1" stop-color="#ff2932"/>
+    </linearGradient>
+    <linearGradient id="mh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5358"/>
+      <stop offset=".45" stop-color="#e41720"/>
+      <stop offset="1" stop-color="#8d050b"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#000" flood-opacity=".55"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="#050505"/>
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="256" r="218" fill="url(#ring)"/>
+    <circle cx="256" cy="256" r="199" fill="#050505"/>
+    <circle cx="256" cy="256" r="188" fill="url(#bg)" stroke="#2c2c2c" stroke-width="4"/>
+    <path d="M119 223c21-46 66-74 123-73 34 1 60 9 82 25l37-20 15 13-18 31c8 13 10 27 7 41l-26 11-21-7-18 57h-23l-3-50h-70l-11 50h-23l-2-59-48 10-19-18 18-11z" fill="#fff"/>
+    <path d="M103 304c48-17 101-25 160-25 58 0 110 8 156 25" fill="none" stroke="#d8d8d8" stroke-width="7" stroke-linecap="round"/>
+    <text x="256" y="421" text-anchor="middle" font-family="Georgia,Times New Roman,serif" font-size="160" font-weight="900" letter-spacing="-18" fill="url(#mh)" stroke="#ff4b50" stroke-width="2">MH</text>
+  </g>
+</svg>
