@@ -978,7 +978,7 @@ function Admin({ onStore }: { onStore: () => void }) {
       {adminMenuOpen && (
         <div className="admin-mobile-drawer-backdrop" onClick={()=>setAdminMenuOpen(false)}>
           <aside className="admin-mobile-drawer" onClick={event=>event.stopPropagation()}>
-            <header><Logo/><button type="button" onClick={()=>setAdminMenuOpen(false)} aria-label="Fechar menu"><X size={20}/></button></header>
+            <header><Logo compact/><button type="button" onClick={()=>setAdminMenuOpen(false)} aria-label="Fechar menu"><X size={20}/></button></header>
             <nav>
               <button type="button" className={adminSection==="overview" ? "active" : ""} onClick={()=>openAdminSection("overview")}><LayoutDashboard size={19}/><span>Visão geral</span></button>
               <button type="button" className={adminSection==="orders" ? "active" : ""} onClick={()=>openAdminSection("orders")}><ClipboardList size={19}/><span>Pedidos</span><b>{orders.length}</b></button>
