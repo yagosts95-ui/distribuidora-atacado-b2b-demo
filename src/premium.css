@@ -1302,3 +1302,281 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     height:142px!important;
   }
 }
+
+
+/* === FINAL MH BRAND IDENTITY + MOBILE ORDER POLISH === */
+.brand-logo-final{
+  width:auto!important;
+  height:auto!important;
+  min-width:0;
+  overflow:visible!important;
+  display:flex!important;
+  align-items:center;
+  gap:10px;
+  background:transparent!important;
+  line-height:1;
+}
+.brand-logo-final .brand-mark{
+  position:static!important;
+  transform:none!important;
+  width:58px!important;
+  height:58px!important;
+  max-width:58px!important;
+  flex:0 0 58px;
+  object-fit:contain!important;
+  display:block;
+}
+.brand-wordmark{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+}
+.brand-mainline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.brand-mh{
+  display:block;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:38px;
+  line-height:.82;
+  font-weight:900;
+  letter-spacing:-2px;
+  color:#e51d29;
+  text-shadow:
+    0 1px 0 #ff5e66,
+    0 3px 8px rgba(229,29,41,.25);
+}
+.brand-cart{
+  width:34px!important;
+  height:34px!important;
+  color:#fff;
+  stroke-width:2.2;
+  flex:0 0 auto;
+}
+.brand-tagline{
+  color:#fff;
+  font-size:8px;
+  line-height:1;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:2.2px;
+  white-space:nowrap;
+}
+
+.brand-logo-final.compact{
+  width:auto!important;
+  height:auto!important;
+  gap:7px;
+}
+.brand-logo-final.compact .brand-mark{
+  width:42px!important;
+  height:42px!important;
+  max-width:42px!important;
+  flex-basis:42px;
+}
+.brand-logo-final.compact .brand-mh{font-size:27px;letter-spacing:-1.3px}
+.brand-logo-final.compact .brand-cart{width:24px!important;height:24px!important}
+.brand-logo-final.compact .brand-tagline{font-size:5.5px;letter-spacing:1.35px}
+
+.site-header .brand-logo-final,
+.success-header .brand-logo-final{
+  width:auto!important;
+  height:auto!important;
+}
+.admin-sidebar .brand-logo-final{padding:0 2px}
+.admin-sidebar .brand-logo-final .brand-mark{width:50px!important;height:50px!important;max-width:50px!important;flex-basis:50px}
+.admin-sidebar .brand-logo-final .brand-mh{font-size:32px}
+.admin-sidebar .brand-logo-final .brand-cart{width:28px!important;height:28px!important}
+.admin-sidebar .brand-logo-final .brand-tagline{font-size:6.5px;letter-spacing:1.55px}
+
+.fatal-fallback .brand-logo-final{
+  justify-content:center;
+  margin:0 auto 18px;
+}
+
+/* Cart image/text separation — desktop baseline */
+.cart-item{
+  overflow:hidden;
+}
+.cart-item .product-photo{
+  width:120px;
+  height:90px!important;
+  min-height:90px!important;
+  aspect-ratio:auto!important;
+  position:relative!important;
+  inset:auto!important;
+  overflow:hidden!important;
+  align-self:center;
+}
+.cart-item .product-photo img{
+  position:static!important;
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+.cart-info{
+  min-width:0;
+  position:relative;
+  z-index:1;
+}
+.cart-info h3{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+/* Mobile is an intentional order-card layout, not a squeezed desktop row */
+@media(max-width:840px){
+  .client-mobile-header .brand-logo-final.compact,
+  .admin-mobile-topbar .brand-logo-final.compact{
+    width:auto!important;
+    height:auto!important;
+  }
+  .client-mobile-header .brand-logo-final.compact .brand-mark,
+  .admin-mobile-topbar .brand-logo-final.compact .brand-mark{
+    width:38px!important;
+    height:38px!important;
+    max-width:38px!important;
+    flex-basis:38px;
+  }
+  .client-mobile-header .brand-logo-final.compact .brand-mh,
+  .admin-mobile-topbar .brand-logo-final.compact .brand-mh{font-size:24px}
+  .client-mobile-header .brand-logo-final.compact .brand-cart,
+  .admin-mobile-topbar .brand-logo-final.compact .brand-cart{width:21px!important;height:21px!important}
+  .client-mobile-header .brand-logo-final.compact .brand-tagline,
+  .admin-mobile-topbar .brand-logo-final.compact .brand-tagline{font-size:5px;letter-spacing:1.05px}
+
+  .admin-mobile-drawer>header .brand-logo-final{
+    width:auto!important;
+    height:auto!important;
+  }
+  .admin-mobile-drawer>header .brand-logo-final .brand-mark{
+    width:48px!important;
+    height:48px!important;
+    max-width:48px!important;
+    flex-basis:48px;
+  }
+  .admin-mobile-drawer>header .brand-logo-final .brand-mh{font-size:30px}
+  .admin-mobile-drawer>header .brand-logo-final .brand-cart{width:26px!important;height:26px!important}
+  .admin-mobile-drawer>header .brand-logo-final .brand-tagline{font-size:6px;letter-spacing:1.3px}
+
+  .cart-page .cart-list{gap:9px}
+  .cart-page .cart-item{
+    display:grid!important;
+    grid-template-columns:88px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    column-gap:11px!important;
+    row-gap:7px!important;
+    align-items:start!important;
+    padding:10px!important;
+    border-radius:14px!important;
+    min-height:108px;
+  }
+  .cart-page .cart-item .product-photo{
+    grid-column:1!important;
+    grid-row:1 / span 2!important;
+    width:88px!important;
+    height:88px!important;
+    min-height:88px!important;
+    aspect-ratio:1/1!important;
+    margin:0!important;
+    align-self:start!important;
+    border-radius:11px!important;
+  }
+  .cart-page .cart-item .product-photo img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+  }
+  .cart-page .cart-info{
+    grid-column:2!important;
+    grid-row:1!important;
+    min-width:0!important;
+    width:100%!important;
+    padding:1px 0 0!important;
+    margin:0!important;
+  }
+  .cart-page .cart-info>span{font-size:7px!important}
+  .cart-page .cart-info h3{
+    font-size:12px!important;
+    line-height:1.18!important;
+    margin:3px 0 6px!important;
+    padding:0!important;
+    max-width:100%!important;
+  }
+  .cart-page .cart-info small{font-size:7px!important}
+  .cart-page .cart-info b{font-size:13px!important;margin-top:2px!important}
+  .cart-page .cart-item>.qty{
+    grid-column:2!important;
+    grid-row:2!important;
+    justify-self:start!important;
+    align-self:end!important;
+    margin:0!important;
+    position:static!important;
+  }
+  .cart-page .cart-item>.qty button{
+    width:30px!important;
+    height:30px!important;
+  }
+  .cart-page .cart-item>.qty strong{min-width:24px;text-align:center}
+
+  .order-summary{
+    position:static!important;
+    top:auto!important;
+    margin-top:12px!important;
+  }
+}
+
+@media(max-width:430px){
+  .brand-logo-final{gap:7px}
+  .brand-logo-final .brand-tagline{letter-spacing:1px}
+  .cart-page .cart-item{
+    grid-template-columns:80px minmax(0,1fr)!important;
+    column-gap:9px!important;
+    padding:9px!important;
+  }
+  .cart-page .cart-item .product-photo{
+    width:80px!important;
+    height:80px!important;
+    min-height:80px!important;
+  }
+  .cart-page .cart-info h3{font-size:11.5px!important}
+}
+
+/* Print keeps the same official identity on a white sheet. */
+@media print{
+  .print-brand .brand-logo-final{
+    display:flex!important;
+    width:250px!important;
+    height:72px!important;
+    gap:9px!important;
+  }
+  .print-brand .brand-logo-final .brand-mark{
+    width:62px!important;
+    height:62px!important;
+    max-width:62px!important;
+    flex-basis:62px!important;
+  }
+  .print-brand .brand-logo-final .brand-mh{
+    font-size:38px!important;
+    color:#c91621!important;
+    text-shadow:none!important;
+  }
+  .print-brand .brand-logo-final .brand-cart{
+    width:30px!important;
+    height:30px!important;
+    color:#111!important;
+  }
+  .print-brand .brand-logo-final .brand-tagline{
+    color:#111!important;
+    font-size:6px!important;
+    letter-spacing:1.25px!important;
+  }
+}
