@@ -153,7 +153,7 @@ function createOrderNumber(order: DemoOrder) {
   return `OP-${date}-${order.id.replace(/\D/g,"").slice(-5).padStart(5,"0")}`;
 }
 
-const ASSET_MARK = "/assets/icons/mh-app-icon-round.png";
+const ASSET_LOGO_FINAL = "/assets/mh-logo-final.png";
 const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 const ASSET_CATALOG_HEADER = "/assets/catalog-header-mh.png";
 
@@ -248,15 +248,8 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
 
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={"brand-logo brand-logo-final " + (compact ? "compact" : "")} aria-label="MH Distribuidora de Alimentos">
-      <img className="brand-mark" src={ASSET_MARK} alt="" aria-hidden="true" />
-      <div className="brand-wordmark">
-        <div className="brand-mainline">
-          <span className="brand-mh">MH</span>
-          <ShoppingCart className="brand-cart" aria-hidden="true" />
-        </div>
-        <span className="brand-tagline">Distribuidora de Alimentos</span>
-      </div>
+    <div className={"brand-logo brand-logo-official " + (compact ? "compact" : "")}>
+      <img src={ASSET_LOGO_FINAL} alt="MH Distribuidora de Alimentos" />
     </div>
   );
 }
