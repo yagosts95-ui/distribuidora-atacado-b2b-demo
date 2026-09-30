@@ -1,4 +1,4 @@
-const CACHE = "mh-gestor-v5";
+const CACHE = "mh-gestor-v6";
 const CORE = [
   "/assets/mh-logo-final.png",
   "/gestor/",
