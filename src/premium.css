@@ -1580,3 +1580,110 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     letter-spacing:1.25px!important;
   }
 }
+
+
+/* === OFFICIAL UPLOADED MH LOGO — single source of truth === */
+.brand-logo-official{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:min(340px,34vw)!important;
+  height:68px!important;
+  min-width:0!important;
+  max-width:340px!important;
+  overflow:visible!important;
+  background:transparent!important;
+  flex:0 1 auto!important;
+}
+.brand-logo-official img{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+.brand-logo-official.compact{
+  width:185px!important;
+  height:46px!important;
+  max-width:185px!important;
+}
+.brand-logo-official.compact img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+.admin-sidebar .brand-logo-official{
+  width:210px!important;
+  height:58px!important;
+  max-width:210px!important;
+}
+.admin-mobile-drawer>header .brand-logo-official{
+  width:220px!important;
+  height:58px!important;
+  max-width:220px!important;
+}
+.fatal-fallback .brand-logo-official{
+  width:320px!important;
+  height:86px!important;
+  max-width:min(320px,88vw)!important;
+  margin:0 auto 18px!important;
+  justify-content:center!important;
+}
+.fatal-fallback .brand-logo-official img{object-position:center!important}
+
+@media(max-width:1100px){
+  .site-header .brand-logo-official{
+    width:265px!important;
+    height:58px!important;
+  }
+}
+@media(max-width:840px){
+  .client-mobile-header .brand-logo-official.compact,
+  .admin-mobile-topbar .brand-logo-official.compact{
+    width:158px!important;
+    height:42px!important;
+    max-width:158px!important;
+  }
+  .client-mobile-header .brand-logo-official.compact img,
+  .admin-mobile-topbar .brand-logo-official.compact img{
+    object-position:left center!important;
+  }
+  .admin-mobile-drawer>header .brand-logo-official{
+    width:210px!important;
+    height:55px!important;
+  }
+  .success-header .brand-logo-official{
+    width:230px!important;
+    height:58px!important;
+    margin:0 auto!important;
+  }
+}
+@media(max-width:420px){
+  .client-mobile-header .brand-logo-official.compact,
+  .admin-mobile-topbar .brand-logo-official.compact{
+    width:145px!important;
+    height:39px!important;
+    max-width:145px!important;
+  }
+}
+@media print{
+  .print-brand .brand-logo-official{
+    display:flex!important;
+    width:250px!important;
+    height:68px!important;
+    max-width:250px!important;
+    background:transparent!important;
+  }
+  .print-brand .brand-logo-official img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+  }
+}
