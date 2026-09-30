@@ -1,5 +1,6 @@
-const CACHE = "mh-client-v3";
+const CACHE = "mh-client-v4";
 const CORE = [
+  "/assets/mh-logo-final.png",
   "/cliente/",
   "/index.html",
   "/manifest-client.webmanifest",
