@@ -9,10 +9,16 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "/assets/mh-logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/assets/icons/mh-app-icon-round.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/mh-app-icon-maskable.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
