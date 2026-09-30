@@ -1,9 +1,10 @@
-const CACHE = "mh-client-v1";
+const CACHE = "mh-client-v2";
 const CORE = [
   "/cliente/",
   "/index.html",
   "/manifest-client.webmanifest",
-  "/assets/mh-app-icon.svg",
+  "/assets/icons/mh-app-icon-round.png",
+  "/assets/icons/mh-app-icon-maskable.png",
   "/assets/mh-logo-premium.png",
   "/assets/banner-abastecimento.png",
   "/assets/banner-linha-grill.png",
