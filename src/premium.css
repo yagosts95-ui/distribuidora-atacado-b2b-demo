@@ -1687,3 +1687,35 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     object-position:left center!important;
   }
 }
+
+
+/* Final gestor drawer logo proportion fix */
+@media(max-width:840px){
+  .admin-mobile-drawer>header{
+    gap:10px!important;
+  }
+  .admin-mobile-drawer>header .brand-logo-official.compact{
+    flex:1 1 auto!important;
+    width:auto!important;
+    max-width:165px!important;
+    height:42px!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  .admin-mobile-drawer>header .brand-logo-official.compact img{
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+  }
+  .admin-mobile-drawer>header>button{
+    flex:0 0 38px!important;
+  }
+}
+@media(max-width:380px){
+  .admin-mobile-drawer>header .brand-logo-official.compact{
+    max-width:148px!important;
+    height:39px!important;
+  }
+}
