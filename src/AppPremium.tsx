@@ -153,7 +153,7 @@ function createOrderNumber(order: DemoOrder) {
   return `OP-${date}-${order.id.replace(/\D/g,"").slice(-5).padStart(5,"0")}`;
 }
 
-const ASSET_LOGO = "/assets/mh-logo-premium.png";
+const ASSET_MARK = "/assets/icons/mh-app-icon-round.png";
 const ASSET_CATALOG = "/assets/b2b-catalog.svg";
 const ASSET_CATALOG_HEADER = "/assets/catalog-header-mh.png";
 
@@ -235,7 +235,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     if (this.state.hasError) {
       return (
         <div className="fatal-fallback">
-          <img src={ASSET_LOGO} alt="MH Digital" />
+          <Logo/>
           <h1>A experiência foi reiniciada.</h1>
           <p>Atualize a página para continuar a demonstração.</p>
           <button onClick={() => window.location.replace("/")}>Voltar ao início</button>
@@ -248,8 +248,15 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
 
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={"brand-logo " + (compact ? "compact" : "")}>
-      <img src={ASSET_LOGO} alt="MH Digital — Distribuidora de Alimentos" />
+    <div className={"brand-logo brand-logo-final " + (compact ? "compact" : "")} aria-label="MH Distribuidora de Alimentos">
+      <img className="brand-mark" src={ASSET_MARK} alt="" aria-hidden="true" />
+      <div className="brand-wordmark">
+        <div className="brand-mainline">
+          <span className="brand-mh">MH</span>
+          <ShoppingCart className="brand-cart" aria-hidden="true" />
+        </div>
+        <span className="brand-tagline">Distribuidora de Alimentos</span>
+      </div>
     </div>
   );
 }
@@ -1410,7 +1417,7 @@ function Admin({ onStore }: { onStore: () => void }) {
               <section className="print-order-sheet" aria-hidden="true">
                 <header className="print-order-header">
                   <div className="print-brand">
-                    <img src={ASSET_LOGO} alt="MH Digital"/>
+                    <Logo/>
                     <div><strong>ORDEM DO PEDIDO</strong><span>Documento operacional - MH Distribuidora</span></div>
                   </div>
                   <div className="print-order-number"><span>ORDEM</span><b>{selectedOrder.orderNumber}</b></div>
