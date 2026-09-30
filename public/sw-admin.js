@@ -1,12 +1,11 @@
-const CACHE = "mh-gestor-v2";
+const CACHE = "mh-gestor-v3";
 const CORE = [
   "/gestor/",
   "/index.html",
   "/manifest-admin.webmanifest",
   "/assets/icons/mh-app-icon-round.png",
   "/assets/icons/mh-app-icon-maskable.png",
-  "/assets/mh-logo-premium.png"
-];
+  "/assets/icons/mh-app-icon-round.png"\n];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE).catch(() => undefined)));
