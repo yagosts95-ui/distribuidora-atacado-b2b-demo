@@ -160,11 +160,21 @@ const ASSET_CATALOG_HEADER = "/assets/catalog-header-mh.png";
 const PREMIUM_CARD_ASSETS: Record<string,string> = {
   "6605": "/assets/cards/sku-1001-cupim-grill.png",
   "5305": "/assets/cards/sku-1002-contra-file-grill.png",
-  "5803": "/assets/cards/sku-1003-picanha-grill.png",
+  "5803": "/assets/cards/picanha-linha-grill.png",
   "5211": "/assets/cards/sku-1004-file-mignon-sem-cordao.png",
   "5517": "/assets/cards/sku-1005-alcatra-coracao-grill.png",
-  "6606": "/assets/cards/sku-1006-costela-desossada.png"
+  "6606": "/assets/cards/sku-1006-costela-desossada.png",
+  "5307": "/assets/cards/bife-ancho.png",
+  "5309": "/assets/cards/capa-de-file.png",
+  "5303": "/assets/cards/noix.png",
+  "5401": "/assets/cards/lagarto.png",
+  "5601": "/assets/cards/maminha-da-alcatra.png",
+  "6405": "/assets/cards/paleta.png",
+  "6502": "/assets/cards/costela-em-tira.png",
+  "5505": "/assets/cards/coracao-da-alcatra.png"
 };
+
+const ACTIVE_CATALOG_PRODUCTS = products.filter(product => Boolean(PREMIUM_CARD_ASSETS[product.code]));
 
 const heroSlides: HeroSlide[] = [
   {
@@ -380,13 +390,11 @@ function HeroCarousel({ onCatalog, onCategory }: { onCatalog: () => void; onCate
       <button
         type="button"
         className="hero-media hero-media-premium"
-        style={{ backgroundImage: `url("${slide.image}")` }}
         onClick={action}
         aria-label={slide.cta}
-      />
-      <div className="hero-premium-action">
-        <button type="button" onClick={action}>{slide.cta}<ArrowRight size={17}/></button>
-      </div>
+      >
+        <img src={slide.image} alt="" aria-hidden="true" />
+      </button>
 
       <button type="button" className="hero-arrow left" onClick={() => go(index - 1)} aria-label="Banner anterior"><ArrowLeft size={19}/></button>
       <button type="button" className="hero-arrow right" onClick={() => go(index + 1)} aria-label="Próximo banner"><ArrowRight size={19}/></button>
@@ -438,7 +446,7 @@ function Storefront() {
 
   const itemCount = items.reduce((sum,item)=>sum+item.qty,0);
 
-  const filtered = products.filter(product => {
+  const filtered = ACTIVE_CATALOG_PRODUCTS.filter(product => {
     const term = search.trim().toLowerCase();
     return (category === "all" || product.category === category) &&
       (!term || product.name.toLowerCase().includes(term) || product.code.includes(term));
@@ -564,7 +572,7 @@ function Storefront() {
               {categories.map(item => (
                 <button type="button" key={item.id} className={"category-card " + (item.id==="grill"?"featured":"")} onClick={()=>openCategory(item.id)}>
                   <span className="category-icon"><CategoryIcon id={item.id}/></span>
-                  <div><b>{item.short}</b><small>{products.filter(p=>p.category===item.id).length} SKUs</small></div>
+                  <div><b>{item.short}</b><small>{ACTIVE_CATALOG_PRODUCTS.filter(p=>p.category===item.id).length} produtos</small></div>
                   <ChevronRight size={17}/>
                 </button>
               ))}
@@ -578,7 +586,7 @@ function Storefront() {
             </div>
 
             <div className="product-grid">
-              {products.filter(p=>featuredCodes.includes(p.code)).slice(0,8).map(product => (
+              {ACTIVE_CATALOG_PRODUCTS.filter(p=>featuredCodes.includes(p.code)).slice(0,8).map(product => (
                 <ProductCard
                   key={product.code}
                   product={product}
@@ -1224,10 +1232,10 @@ function Admin({ onStore }: { onStore: () => void }) {
         <section className={"admin-bottom-grid admin-mobile-module " + (adminSection==="catalog" ? "mobile-active" : "")}>
           <article className="admin-panel" id="produtos">
             <span className="eyebrow">CATÁLOGO</span>
-            <h2>42 SKUs demonstrativos</h2>
-            <p>As quatro linhas da tabela recebida já estão organizadas no catálogo.</p>
+            <h2>{ACTIVE_CATALOG_PRODUCTS.length} produtos publicados</h2>
+            <p>Somente produtos com imagem premium definida estão visíveis no catálogo do cliente.</p>
             <div className="admin-lines">
-              {categories.map(item=><div key={item.id}><span>{item.label}</span><b>{products.filter(p=>p.category===item.id).length} SKUs</b></div>)}
+              {categories.map(item=><div key={item.id}><span>{item.label}</span><b>{ACTIVE_CATALOG_PRODUCTS.filter(p=>p.category===item.id).length} ativos</b></div>)}
             </div>
           </article>
 
