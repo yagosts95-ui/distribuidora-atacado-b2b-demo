@@ -1,9 +1,10 @@
-const CACHE = "mh-gestor-v1";
+const CACHE = "mh-gestor-v2";
 const CORE = [
   "/gestor/",
   "/index.html",
   "/manifest-admin.webmanifest",
-  "/assets/mh-app-icon.svg",
+  "/assets/icons/mh-app-icon-round.png",
+  "/assets/icons/mh-app-icon-maskable.png",
   "/assets/mh-logo-premium.png"
 ];
 
