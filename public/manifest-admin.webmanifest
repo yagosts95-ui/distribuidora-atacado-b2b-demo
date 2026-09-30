@@ -1,0 +1,20 @@
+{
+  "id": "/gestor/",
+  "name": "MH Gestor",
+  "short_name": "MH Gestor",
+  "description": "Painel de gestão da MH Distribuidora.",
+  "start_url": "/gestor/",
+  "scope": "/gestor/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/assets/mh-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
