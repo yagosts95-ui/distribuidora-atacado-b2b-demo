@@ -1464,19 +1464,22 @@ function Admin({ onStore }: { onStore: () => void }) {
   );
 }
 
+function managerPath() {
+  const path = window.location.pathname;
+  return path === "/admin" || path.startsWith("/admin/") || path === "/gestor" || path.startsWith("/gestor/");
+}
+
 function AppPremiumInner() {
-  const [mode, setMode] = useState<AppMode>(() => window.location.pathname.startsWith("/admin") ? "admin" : "store");
+  const [mode, setMode] = useState<AppMode>(() => managerPath() ? "admin" : "store");
 
   useEffect(() => {
-    const handler = () => setMode(window.location.pathname.startsWith("/admin") ? "admin" : "store");
+    const handler = () => setMode(managerPath() ? "admin" : "store");
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
   const goStore = () => {
-    window.history.pushState({}, "", "/");
-    setMode("store");
-    window.scrollTo({ top: 0 });
+    window.location.assign("/cliente/");
   };
 
   return mode === "admin" ? <Admin onStore={goStore}/> : <Storefront/>;
