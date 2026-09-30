@@ -1,5 +1,5 @@
-const CACHE = "mh-digital-v9";
-const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo-premium.png", "/assets/banner-abastecimento.png", "/assets/banner-linha-grill.png", "/assets/banner-estoque-negocio.png", "/assets/catalog-header-mh.png", "/assets/cards/sku-1001-cupim-grill.png", "/assets/cards/sku-1002-contra-file-grill.png", "/assets/cards/sku-1003-picanha-grill.png", "/assets/cards/sku-1004-file-mignon-sem-cordao.png", "/assets/cards/sku-1005-alcatra-coracao-grill.png", "/assets/cards/sku-1006-costela-desossada.png", "/assets/b2b-catalog.svg"];
+const CACHE = "mh-digital-v10";
+const CORE = ["/", "/index.html", "/manifest.webmanifest", "/assets/mh-logo-premium.png", "/assets/banner-abastecimento.png", "/assets/banner-linha-grill.png", "/assets/banner-estoque-negocio.png", "/assets/catalog-header-mh.png", "/assets/cards/sku-1001-cupim-grill.png", "/assets/cards/sku-1002-contra-file-grill.png", "/assets/cards/sku-1003-picanha-grill.png", "/assets/cards/sku-1004-file-mignon-sem-cordao.png", "/assets/cards/sku-1005-alcatra-coracao-grill.png", "/assets/cards/sku-1006-costela-desossada.png", "/assets/cards/bife-ancho.png", "/assets/cards/capa-de-file.png", "/assets/cards/coracao-da-alcatra.png", "/assets/cards/costela-em-tira.png", "/assets/cards/lagarto.png", "/assets/cards/maminha-da-alcatra.png", "/assets/cards/noix.png", "/assets/cards/paleta.png", "/assets/cards/picanha-linha-grill.png", "/assets/b2b-catalog.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
