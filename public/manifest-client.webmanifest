@@ -1,0 +1,20 @@
+{
+  "id": "/cliente/",
+  "name": "MH Digital",
+  "short_name": "MH Digital",
+  "description": "Catálogo, pedidos e acompanhamento da MH Distribuidora.",
+  "start_url": "/cliente/",
+  "scope": "/cliente/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/assets/mh-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
