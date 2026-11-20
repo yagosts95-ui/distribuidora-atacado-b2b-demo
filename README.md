@@ -1,4 +1,4 @@
-# 🥩 MH Digital — Canal de Pedidos B2B & Painel Comercial (MVP)
+# 🥩 Canal de Pedidos B2B & Painel Comercial (MVP)
 
 Plataforma de abastecimento comercial B2B desenvolvida para distribuidoras de carnes e alimentos, conectando o catálogo digital para açougues, mercados e revendedores a um painel operacional com geração de Ordem de Pedido (`OP`) e visão financeira integrada.
 
