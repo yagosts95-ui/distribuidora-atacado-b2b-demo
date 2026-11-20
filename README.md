@@ -7,7 +7,7 @@ Plataforma de abastecimento comercial B2B desenvolvida como estudo de caso a par
 
 ---
 
-## 🎯 Oportunidade & Proposta da Demonstraçãoo
+## 🎯 Oportunidade & Proposta da Demonstração
 
 Este projeto nasceu a partir de uma vivência real no setor de distribuição de carnes e alimentos e foi separado como estudo de caso, ainda não em produção, para demonstrar como um fluxo digital pode estruturar a montagem de pedidos por corte e SKU, o aceite e a geração de Ordem de Pedido (`OP`) para impressão, além do acompanhamento operacional e financeiro.
 
